@@ -1,0 +1,2 @@
+gcc prototype.c msg.c -lncurses -pthread -o prototype
+./prototype
