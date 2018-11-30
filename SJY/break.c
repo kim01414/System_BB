@@ -46,20 +46,12 @@ int main(){
 void refreshMap(){
 	int h, w;
 
-	//box(gamebox,ACS_VLINE,ACS_HLINE);
 	for(h=0; h<MAP_HEIGHT; h++){
 		for(w=0; w<MAP_WIDTH; w++){
 			wmove(gamebox,h,w);
 			if(map[h][w]==EMPTY){
 				waddch(gamebox,' ');
 			}
-			/*else if(map[h][w]==WALL){
-				if(w==0 | w==MAP_WIDTH-1) addch(ACS_VLINE);
-				//addch('#');
-			}
-			else if(map[h][w]==WALL_BOTTOM){
-				if(w!=0 | w!=MAP_WIDTH-1) addch(ACS_HLINE);
-			}*/
 			else if(map[h][w]==BOARD){
 				waddch(gamebox,'W');
 			}
@@ -86,7 +78,6 @@ void refreshMap(){
 
 void setBoard(int c){
 	int i, sth;
-
 
 	switch(c){
 		case KEY_LEFT:
@@ -247,8 +238,6 @@ void initialize()
 	box(gamebox,ACS_VLINE,ACS_HLINE);
 	refresh();
 	wrefresh(gamebox);
-	
-	getch();
 	current_board = MAP_WIDTH/2-4;	//set board at centre
 	current_ballX = BOARD_HEIGHT-1;	//set ballX above the board
 	current_ballY = MAP_WIDTH/2;		//set ballY at centre
@@ -273,13 +262,7 @@ void initialize()
 	makebrick();
 	refreshMap();
 
-
-	move(MAP_HEIGHT/2,MAP_WIDTH/2-12);
-	addstr("Press any key to start");
-	ch=getch();
-	move(MAP_HEIGHT/2,MAP_WIDTH/2-12);
-	addstr("                         ");
-
-
+   //Press Key to Start popup
+   popup("Press Any Key to Start",0,A_BOLD|A_BLINK);
 	refreshMap();	//first show map
 }
