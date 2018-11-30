@@ -11,12 +11,12 @@ int current_board;
 int current_ballX, current_ballY;	
 int dx=-1, dy=-1;		//ball delta
 int brick_left=0;
+WINDOW *gamebox;
 
 int main(){
 	int h, w; 		//height and width variables for loop	
 	int q=1, c=1;	//don't care variables..? not quite importent things
 	char ch;
-
 
 	//to make ball thread
 	pthread_t ballThread;
@@ -27,20 +27,13 @@ int main(){
 	/*	Initialize	*/
 	initialize();
 	
-	
 	thr_id = pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
-
-
 	while(c){
 		c=wgetch(stdscr);	//if user input arrow key
 		setBoard(c);		//handle arrow key
 		refreshMap();		//loop continue
 	}
-	
-
 	pthread_join(ballThread, (void**)&status);
-
-
 	echo();
 	getch();
 	endwin();	//end curses
@@ -53,38 +46,39 @@ int main(){
 void refreshMap(){
 	int h, w;
 
-
+	//box(gamebox,ACS_VLINE,ACS_HLINE);
 	for(h=0; h<MAP_HEIGHT; h++){
 		for(w=0; w<MAP_WIDTH; w++){
-			move(h,w);
+			wmove(gamebox,h,w);
 			if(map[h][w]==EMPTY){
-				addch(' ');
+				waddch(gamebox,' ');
 			}
-			else if(map[h][w]==WALL){
+			/*else if(map[h][w]==WALL){
 				if(w==0 | w==MAP_WIDTH-1) addch(ACS_VLINE);
 				//addch('#');
 			}
 			else if(map[h][w]==WALL_BOTTOM){
 				if(w!=0 | w!=MAP_WIDTH-1) addch(ACS_HLINE);
-			}
+			}*/
 			else if(map[h][w]==BOARD){
-				addch('W');
+				waddch(gamebox,'W');
 			}
 			else if(map[h][w]==BALL){
-				addch('O');
+				waddch(gamebox,'O');
 			}
 			else if(map[h][w]==BRICK3){
-				addch('C');
+				waddch(gamebox,'C');
 			}
 			else if(map[h][w]==BRICK2) {
-				addch('B');
+				waddch(gamebox,'B');
 			}
 			else if(map[h][w]==BRICK1) {
-				addch('A');
+				waddch(gamebox,'A');
 			}
 		}
 	}
 	refresh();
+	wrefresh(gamebox);
 }
 
 
@@ -249,8 +243,12 @@ void initialize()
 	curs_set(0);	//make user can't see the cursor
 	noecho();
 	keypad(stdscr, TRUE);	//enables the reading of func keys(arrow keys)
+	gamebox = newwin(22,62,0,1);
+	box(gamebox,ACS_VLINE,ACS_HLINE);
+	refresh();
+	wrefresh(gamebox);
 	
-
+	getch();
 	current_board = MAP_WIDTH/2-4;	//set board at centre
 	current_ballX = BOARD_HEIGHT-1;	//set ballX above the board
 	current_ballY = MAP_WIDTH/2;		//set ballY at centre
