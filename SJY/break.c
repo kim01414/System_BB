@@ -4,56 +4,13 @@
 #include <signal.h>
 #include <pthread.h>
 #include <unistd.h>
-
-
-#define MAP_WIDTH 62	//except 2 wall lines,  make centre map to  60*20
-#define MAP_HEIGHT 22
-#define BOARD_HEIGHT MAP_HEIGHT-3	//board moves at map[19][x]
-#define BRICK_HEIGHT 10		//brick generated at x : 4~9, y : 7~55
-
-
-#define WALL 10
-#define WALL_BOTTOM 11
-#define BRICK1 1
-#define BRICK2 2
-#define BRICK3 3
-#define BOARD 4
-#define BALL 5
-#define EMPTY 0
-
-
-
+#include "BB.h"
 
 int map[MAP_HEIGHT][MAP_WIDTH];
 int current_board;
 int current_ballX, current_ballY;	
 int dx=-1, dy=-1;		//ball delta
 int brick_left=0;
-
-
-
-
-// board functions
-void setBoard(int c);
-void moveBoard(int d);
-
-
-// ball functions
-void setBallPos();
-void setBallDel(int what);
-void *ballThreadFunc(void*);
-
-
-//brick functions
-void makebrick();
-void deleteBrick(int what, int x, int y);
-
-
-// map functions
-void refreshMap();
-
-
-
 
 int main(){
 	int h, w; 		//height and width variables for loop	
@@ -193,11 +150,11 @@ void moveBoard(int d){
 
 
 	if(d==-1){
-		map[BOARD_HEIGHT][current_board+7]=0;	//set rightend to empty
-		map[BOARD_HEIGHT][--current_board]=3;	//set leftend to board
+		map[BOARD_HEIGHT][current_board+7]=EMPTY;	//set rightend to empty
+		map[BOARD_HEIGHT][--current_board]=BOARD;	//set leftend to board
 	}else if(d==1){
-		map[BOARD_HEIGHT][current_board]=0;
-		map[BOARD_HEIGHT][++current_board+7]=3;
+		map[BOARD_HEIGHT][current_board]=EMPTY;
+		map[BOARD_HEIGHT][++current_board+7]=BOARD;
 	}
 }
 
@@ -286,15 +243,13 @@ void setBallDel(int what){
 }
 
 
-
-
 void makebrick(){
 	int i, j;
 
 
 	for(i=4; i<BRICK_HEIGHT; i+=2){
 		for(j=7; j<MAP_WIDTH-7; j++){
-			map[i][j]=4;
+			map[i][j]=BRICK1;
 			brick_left+=2;
 			if(j%4==1) j++;
 		}

@@ -12,3 +12,22 @@
 #define BOARD 4
 #define BALL 5
 #define EMPTY 0
+
+// board functions
+void setBoard(int c);
+void moveBoard(int d);
+
+
+// ball functions
+void setBallPos();
+void setBallDel(int what);
+void *ballThreadFunc(void*);
+
+
+//brick functions
+void makebrick();
+void deleteBrick(int what, int x, int y);
+
+
+// map functions
+void refreshMap();
