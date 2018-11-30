@@ -24,48 +24,10 @@ int main(){
 	int status;
 
 
-	/*	Initialise	*/
-	initscr();
-	clear();		//initialise screen
-	curs_set(0);	//make user can't see the cursor
-	noecho();
-	keypad(stdscr, TRUE);	//enables the reading of func keys(arrow keys)
+	/*	Initialize	*/
+	initialize();
 	
-
-	current_board = MAP_WIDTH/2-4;	//set board at centre
-	current_ballX = BOARD_HEIGHT-1;	//set ballX above the board
-	current_ballY = MAP_WIDTH/2;		//set ballY at centre
-
 	
-	// initialise map using predefined numbers
-	for(h=0; h<MAP_HEIGHT; h++){
-		for(w=0; w<MAP_WIDTH; w++){
-			if( h==0 | w==0 | w==MAP_WIDTH-1 ){
-				map[h][w] = WALL;
-			}
-			else if (h==MAP_HEIGHT-1){
-				map[h][w] = WALL_BOTTOM;
-			}
-			else if(h==BOARD_HEIGHT && (w>=current_board&&w<=current_board+7)){
-				map[h][w] = BOARD;
-			}
-			else
-				map[h][w] = EMPTY;
-		}
-	}
-	map[current_ballX][current_ballY] = BALL;
-	makebrick();
-	refreshMap();
-
-
-	move(MAP_HEIGHT/2,MAP_WIDTH/2-12);
-	addstr("Press any key to start");
-	ch=getch();
-	move(MAP_HEIGHT/2,MAP_WIDTH/2-12);
-	addstr("                         ");
-
-
-	refreshMap();	//first show map
 	thr_id = pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
 
 
@@ -98,8 +60,12 @@ void refreshMap(){
 			if(map[h][w]==EMPTY){
 				addch(' ');
 			}
-			else if(map[h][w]==WALL | map[h][w]==WALL_BOTTOM){
-				addch('#');
+			else if(map[h][w]==WALL){
+				if(w==0 | w==MAP_WIDTH-1) addch(ACS_VLINE);
+				//addch('#');
+			}
+			else if(map[h][w]==WALL_BOTTOM){
+				if(w!=0 | w!=MAP_WIDTH-1) addch(ACS_HLINE);
 			}
 			else if(map[h][w]==BOARD){
 				addch('W');
@@ -272,4 +238,50 @@ void deleteBrick(int what, int x, int y){
 		}
 		brick_left--;
 	}
+}
+
+void initialize()
+{
+	int h, w;
+	char ch;
+	initscr();
+	clear();		//initialise screen
+	curs_set(0);	//make user can't see the cursor
+	noecho();
+	keypad(stdscr, TRUE);	//enables the reading of func keys(arrow keys)
+	
+
+	current_board = MAP_WIDTH/2-4;	//set board at centre
+	current_ballX = BOARD_HEIGHT-1;	//set ballX above the board
+	current_ballY = MAP_WIDTH/2;		//set ballY at centre
+
+	// initialise map using predefined numbers
+	for(h=0; h<MAP_HEIGHT; h++){
+		for(w=0; w<MAP_WIDTH; w++){
+			if( h==0 | w==0 | w==MAP_WIDTH-1 ){
+				map[h][w] = WALL;
+			}
+			else if (h==MAP_HEIGHT-1){
+				map[h][w] = WALL_BOTTOM;
+			}
+			else if(h==BOARD_HEIGHT && (w>=current_board&&w<=current_board+7)){
+				map[h][w] = BOARD;
+			}
+			else
+				map[h][w] = EMPTY;
+		}
+	}
+	map[current_ballX][current_ballY] = BALL;
+	makebrick();
+	refreshMap();
+
+
+	move(MAP_HEIGHT/2,MAP_WIDTH/2-12);
+	addstr("Press any key to start");
+	ch=getch();
+	move(MAP_HEIGHT/2,MAP_WIDTH/2-12);
+	addstr("                         ");
+
+
+	refreshMap();	//first show map
 }
