@@ -32,3 +32,4 @@ void deleteBrick(int what, int x, int y);
 // map functions
 void refreshMap();
 void initialize();
+void popup(char*,int,int);
