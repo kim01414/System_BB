@@ -8,14 +8,16 @@
 
 #define MAP_WIDTH 62	//except 2 wall lines,  make centre map to  60*20
 #define MAP_HEIGHT 22
-#define BOARD_HEIGHT MAP_HEIGHT-3
-#define BRICK_HEIGHT 10
+#define BOARD_HEIGHT MAP_HEIGHT-3	//board moves at map[19][x]
+#define BRICK_HEIGHT 10		//brick generated at x : 4~9, y : 7~55
 
 
-#define WALL 1
-#define WALL_BOTTOM 2
-#define BOARD 3
-#define BRICK 4
+#define WALL 10
+#define WALL_BOTTOM 11
+#define BRICK1 1
+#define BRICK2 2
+#define BRICK3 3
+#define BOARD 4
 #define BALL 5
 #define EMPTY 0
 
@@ -98,16 +100,17 @@ int main(){
 	makebrick();
 	refreshMap();
 
+
 	move(MAP_HEIGHT/2,MAP_WIDTH/2-12);
 	addstr("Press any key to start");
 	ch=getch();
 	move(MAP_HEIGHT/2,MAP_WIDTH/2-12);
 	addstr("                         ");
 
+
 	refreshMap();	//first show map
-
-
 	thr_id = pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
+
 
 	while(c){
 		c=wgetch(stdscr);	//if user input arrow key
@@ -115,11 +118,13 @@ int main(){
 		refreshMap();		//loop continue
 	}
 	
+
 	pthread_join(ballThread, (void**)&status);
+
 
 	echo();
 	getch();
-	endwin();	//커서 종료
+	endwin();	//end curses
 	return 0;
 }
 
@@ -145,8 +150,14 @@ void refreshMap(){
 			else if(map[h][w]==BALL){
 				addch('O');
 			}
-			else if(map[h][w]==BRICK){
-				addch('X');
+			else if(map[h][w]==BRICK3){
+				addch('C');
+			}
+			else if(map[h][w]==BRICK2) {
+				addch('B');
+			}
+			else if(map[h][w]==BRICK1) {
+				addch('A');
 			}
 		}
 	}
@@ -180,6 +191,7 @@ void setBoard(int c){
 void moveBoard(int d){
 	int i;
 
+
 	if(d==-1){
 		map[BOARD_HEIGHT][current_board+7]=0;	//set rightend to empty
 		map[BOARD_HEIGHT][--current_board]=3;	//set leftend to board
@@ -201,6 +213,7 @@ void *ballThreadFunc(void* data){
 void setBallPos(){
 	int temp;
 
+
 	temp = map[current_ballX+dx][current_ballY+dy];
 	switch(temp){
 		case WALL:	//when next pos is wall, bounce
@@ -214,8 +227,10 @@ void setBallPos(){
 		case BOARD:		//when next pos is board, bounce
 			setBallDel(0);
 			break;
-		case BRICK:		//when next pos is brick, break the brick and bounce
-			setBallDel(BRICK);
+		case BRICK3:		//when next pos is brick, break the brick and bounce
+		case BRICK2:
+		case BRICK1:
+			setBallDel(temp);
 			break;
 	}
 
@@ -229,7 +244,7 @@ void setBallPos(){
 
 
 	refreshMap();
-	usleep(150000);	
+	usleep(200000);	
 }
 
 
@@ -254,15 +269,19 @@ void setBallDel(int what){
 		//if top left corner is not empty
 		//this may be work if ball collide at the corner of bricks or board
 		dx=1; dy=1;
+		deleteBrick(what, -1, -1);
 	}else if(map[current_ballX-1][current_ballY+1]!=EMPTY){
 		//if top right corner is not empty
 		dx=1; dy=-1;
+		deleteBrick(what, -1, 1);
 	}else if(map[current_ballX+1][current_ballY-1]!=EMPTY){
 		//if bottom left corner is not empty
 		dx=-1; dy=1;
+		deleteBrick(what, 1, -1);
 	}else if(map[current_ballX+1][current_ballY+1]!=EMPTY){
 		//if bottom right corner is not empty
 		dx=-1; dy=-1;
+		deleteBrick(what, 1, 1);
 	}
 }
 
@@ -272,19 +291,30 @@ void setBallDel(int what){
 void makebrick(){
 	int i, j;
 
+
 	for(i=4; i<BRICK_HEIGHT; i+=2){
 		for(j=7; j<MAP_WIDTH-7; j++){
 			map[i][j]=4;
 			brick_left+=2;
-			if(j%4==0) j++;
+			if(j%4==1) j++;
 		}
 	}
 }
 
 
 void deleteBrick(int what, int x, int y){
-	if(what==BRICK){
-		map[current_ballX+x][current_ballY+y]=EMPTY;
+	int xpos = current_ballX+x, ypos=current_ballY+y;
+	int temp=ypos;
+
+	if(what==BRICK3 || what==BRICK2||what==BRICK1){
+		map[xpos][ypos]--;
+		while(map[xpos][--temp]!=EMPTY){
+			map[xpos][temp]--;
+		}
+		temp=ypos;
+		while(map[xpos][++temp]!=EMPTY){
+			map[xpos][temp]--;
+		}
 		brick_left--;
 	}
 }
