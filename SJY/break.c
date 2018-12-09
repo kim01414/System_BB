@@ -10,7 +10,7 @@
 
 int map[MAP_HEIGHT][MAP_WIDTH];
 int current_board;
-int current_ballX, current_ballY;	
+int current_ballX, current_ballY;
 int dx=-1, dy=-1;		//ball delta
 int brick_left=0;
 int test_stage=1, test_score=0, test_time=0, test_high;
@@ -18,10 +18,10 @@ int test_stage=1, test_score=0, test_time=0, test_high;
 WINDOW *gamebox, *scorebox;
 
 int main(){
-	int h, w; 		//height and width variables for loop	
+	int h, w; 		//height and width variables for loop
 	int q=1, c=1;	//don't care variables..? not quite importent things
 	char ch;
-	
+
 	//to make ball thread
 	pthread_t ballThread, TimeThread;
 	int thr_id;
@@ -31,7 +31,7 @@ int main(){
 	/*	Initialize	*/
 	highscore(0);
 	initialize();
-	
+
 	thr_id = pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
 	thr_id = pthread_create(&TimeThread, NULL, stopwatch, NULL);
 	while(test_time!=-1){
@@ -152,7 +152,7 @@ void setBallPos(){
 			echo();
 			endwin();
 			exit(1);
-			break;	
+			break;
 	}
 
 
@@ -164,7 +164,7 @@ void setBallPos(){
 	map[current_ballX][current_ballY]=BALL;
 
 	refreshMap();
-	usleep(200000);	
+	usleep(200000);
 }
 
 
@@ -309,7 +309,7 @@ void initialize() //80 x 26
 	int h, w;
 	char ch;
 	//setlocale(LC_ALL, "ko_KR.utf8");
-    //setlocale(LC_CTYPE, "ko_KR.utf8");
+	//setlocale(LC_CTYPE, "ko_KR.utf8");
 	initscr();
 	start_color();
 	clear();		//initialise screen
@@ -335,7 +335,7 @@ void initialize() //80 x 26
 	wattroff(scorebox,A_BOLD);
 	wrefresh(scorebox);
 	wrefresh(gamebox);
-	
+
 	current_board = MAP_WIDTH/2-4;	//set board at centre
 	current_ballX = BOARD_HEIGHT-1;	//set ballX above the board
 	current_ballY = MAP_WIDTH/2;		//set ballY at centre
@@ -357,7 +357,8 @@ void initialize() //80 x 26
 		}
 	}
 	map[current_ballX][current_ballY] = BALL;
-	makebrick();
+	test1();
+	//	makebrick();
 	refreshMap();
 
    //Press Key to Start popup
