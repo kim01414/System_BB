@@ -21,7 +21,7 @@ int main(){
 	int h, w; 		//height and width variables for loop	
 	int q=1, c=1;	//don't care variables..? not quite importent things
 	char ch;
-
+	
 	//to make ball thread
 	pthread_t ballThread, TimeThread;
 	int thr_id;
@@ -34,14 +34,11 @@ int main(){
 	
 	thr_id = pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
 	thr_id = pthread_create(&TimeThread, NULL, stopwatch, NULL);
-	while(c){
+	while(test_time!=-1){
 		c=wgetch(stdscr);	//if user input arrow key
 		setBoard(c);		//handle arrow key
 		refreshMap();		//loop continue
 	}
-	pthread_join(ballThread, (void**)&status);
-	echo();
-	getch();
 	endwin();	//end curses
 	return 0;
 }
@@ -65,13 +62,13 @@ void refreshMap(){ /////////// █ ░ ▒ ▓
 				waddch(gamebox,'O'|A_BOLD);
 			}
 			else if(map[h][w]==BRICK3){
-				waddch(gamebox,'C'|COLOR_PAIR(2));
+				waddch(gamebox,ACS_CKBOARD|COLOR_PAIR(2));
 			}
 			else if(map[h][w]==BRICK2) {
-				waddch(gamebox,'B'|COLOR_PAIR(4));
+				waddch(gamebox,ACS_CKBOARD|COLOR_PAIR(4));
 			}
 			else if(map[h][w]==BRICK1) {
-				waddch(gamebox,'#'|COLOR_PAIR(5));
+				waddch(gamebox,ACS_CKBOARD|COLOR_PAIR(5));
 			}
 		}
 	}
@@ -119,7 +116,7 @@ void moveBoard(int d){
 }
 
 void *ballThreadFunc(void* data){
-	while(1){
+	while(test_time!=-1){
 		setBallPos();
 	}
 }
@@ -150,7 +147,11 @@ void setBallPos(){
 			break;
 		case WALL_BOTTOM:	//when next pos is bottom, game end
 			highscore(1);
+			test_time=-1;
 			gameover(test_score,test_high);
+			echo();
+			endwin();
+			exit(1);
 			break;	
 	}
 
@@ -234,6 +235,7 @@ void deleteBrick(int what, int x, int y){
 		brick_left--;
 	}
 }
+
 void BOX(WINDOW* win, int X,int Y, int color){
 	box(win,ACS_VLINE|color,ACS_HLINE|color);
 	mvwaddch(win, 0,0       ,ACS_ULCORNER|color);
@@ -315,7 +317,7 @@ void highscore(int code){
 			read(fd,buffer,10);
 			temp = atoi(buffer);
 			test_high=temp;
-		} //fscanf(f,"%d",&test_high);
+		}
 	}
 	else if(code==1){ //Update highscore
 		fd=open("score.txt",O_CREAT|O_WRONLY);
