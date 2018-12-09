@@ -366,7 +366,7 @@ void initialize() //80 x 26
 	int h, w;
 	char ch;
 	//setlocale(LC_ALL, "ko_KR.utf8");
-    //setlocale(LC_CTYPE, "ko_KR.utf8");
+	//setlocale(LC_CTYPE, "ko_KR.utf8");
 	initscr();
 	start_color();
 	clear();		//initialise screen
