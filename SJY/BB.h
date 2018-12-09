@@ -4,7 +4,6 @@
 #define BOARD_HEIGHT MAP_HEIGHT-3	//board moves at map[19][x]
 #define BRICK_HEIGHT 10		//brick generated at x : 4~9, y : 7~55
 
-
 #define WALL 10
 #define WALL_BOTTOM 11
 #define BRICK1 1
@@ -42,3 +41,6 @@ void *stopwatch();
 void gameover(int,int);
 void highscore(int);
 void BOX(WINDOW*, int, int,int);
+
+//MAP design
+void test1();
