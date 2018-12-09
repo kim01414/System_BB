@@ -234,7 +234,6 @@ void deleteBrick(int what, int x, int y){
 		brick_left--;
 	}
 }
-
 void BOX(WINDOW* win, int X,int Y, int color){
 	box(win,ACS_VLINE|color,ACS_HLINE|color);
 	mvwaddch(win, 0,0       ,ACS_ULCORNER|color);
