@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #define MAP_WIDTH 62	//except 2 wall lines,  make centre map to  60*20
 #define MAP_HEIGHT 22
 #define BOARD_HEIGHT MAP_HEIGHT-3	//board moves at map[19][x]
@@ -33,3 +34,9 @@ void deleteBrick(int what, int x, int y);
 void refreshMap();
 void initialize();
 void popup(char*,int,int);
+
+//UI
+void *stopwatch();
+void gameover(int,int);
+void highscore(int);
+void BOX(WINDOW*, int, int,int);
