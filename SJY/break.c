@@ -217,40 +217,48 @@ void setBallPos(){
 }
 
 
+
 void setBallDel(int what){
-	if(map[current_ballX][current_ballY-1]!=EMPTY){
-		//if left is not empty
-		dy=1;
-		deleteBrick(what, 0,-1);
-	}else if(map[current_ballX][current_ballY+1]!=EMPTY){
-		//if right is not empty
-		dy=-1;
-		deleteBrick(what, 0, 1);
-	}else if(map[current_ballX-1][current_ballY]!=EMPTY){
-		//if up is not empty
-		dx=1;
-		deleteBrick(what, -1, 0);
-	}else if(map[current_ballX+1][current_ballY]!=EMPTY){
-		//if down is not empty
-		dx=-1;
-		deleteBrick(what, 1, 0);
-	}else if(map[current_ballX-1][current_ballY-1]!=EMPTY){
-		//if top left corner is not empty
-		//this may be work if ball collide at the corner of bricks or board
-		dx=1; dy=1;
-		deleteBrick(what, -1, -1);
-	}else if(map[current_ballX-1][current_ballY+1]!=EMPTY){
-		//if top right corner is not empty
-		dx=1; dy=-1;
-		deleteBrick(what, -1, 1);
-	}else if(map[current_ballX+1][current_ballY-1]!=EMPTY){
-		//if bottom left corner is not empty
-		dx=-1; dy=1;
-		deleteBrick(what, 1, -1);
-	}else if(map[current_ballX+1][current_ballY+1]!=EMPTY){
-		//if bottom right corner is not empty
-		dx=-1; dy=-1;
-		deleteBrick(what, 1, 1);
+	int temp_x = current_ballX + dx;
+	int temp_y = current_ballY + dy;
+
+	
+	if(map[temp_x][temp_y] != EMPTY){
+		if(map[temp_x][temp_y] == BOARD){
+			// change delta despite board's position
+			if(temp_y <= current_board+2 ){
+				dx *= -1;
+				if(dy == 0)
+					dy = -1;
+			}else if(temp_y > current_board+2 && temp_y <= current_board+4){
+				dx *= -1;
+				dy = 0;
+			}else if(temp_y > current_board+4 && temp_y <= current_board+7){
+				dx *= -1;
+				if(dy == 0)
+					dy = 1;
+			}
+
+		} else if(map[temp_x][temp_y] == WALL || map[temp_x][temp_y] == WALL_BOTTOM){
+			if(temp_y == 0 || temp_y == MAP_WIDTH-1){	// meet right, left wall
+				dy *= -1;
+			}else if(temp_x == 0 || temp_y == MAP_HEIGHT-1){// meet up, down wall
+				dx *= -1;
+			}
+			else if(temp_x <= 0 && temp_y <= 0){// meet left edge
+				dx *= -1;
+				dy *= -1;
+			}
+			else if(temp_x <= 0 && temp_y <= MAP_WIDTH-1){// meet right edge
+				dx *= -1;
+				dy *= -1;
+			}
+
+			deleteBrick(what, dx, dy);
+		}else{									// meet bricks
+			deleteBrick(what, dx, dy);
+			dx *= -1;	
+		}	
 	}
 }
 
