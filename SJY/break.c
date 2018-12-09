@@ -8,6 +8,7 @@
 #include <locale.h>
 #include "BB.h"
 
+
 int map[MAP_HEIGHT][MAP_WIDTH];
 int current_board;
 int current_ballX, current_ballY;	
@@ -16,6 +17,9 @@ int brick_left=0;
 int test_stage=1, test_score=0, test_time=0, test_high;
 
 WINDOW *gamebox, *scorebox;
+
+
+
 
 int main(){
 	int h, w; 		//height and width variables for loop	
@@ -27,13 +31,14 @@ int main(){
 	int thr_id;
 	int status;
 
-
 	/*	Initialize	*/
 	highscore(0);
 	initialize();
-	
-	thr_id = pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
+	//set ball and time thread
+	thr_id = pthread_create(&ballThread, NULL, ballThreadFunc, NULL);
 	thr_id = pthread_create(&TimeThread, NULL, stopwatch, NULL);
+
+
 	while(test_time!=-1){
 		c=wgetch(stdscr);	//if user input arrow key
 		setBoard(c);		//handle arrow key
@@ -43,15 +48,23 @@ int main(){
 	return 0;
 }
 
+
+
+
 void refreshMap(){ /////////// █ ░ ▒ ▓
 	int h, w;
+
+	//print formatted output in curses windows
+	//at scorebox, y, x, formatted string, string value
 	mvwprintw(scorebox,2,7,"%3d",test_stage);
 	mvwprintw(scorebox,2,29,"%7d",test_high);
 	mvwprintw(scorebox,2,40,"%7d",test_score);
 	mvwprintw(scorebox,2,53,"%4d",test_time);
+
+
 	for(h=0; h<MAP_HEIGHT; h++){
 		for(w=0; w<MAP_WIDTH; w++){
-			wmove(gamebox,h,w);
+			wmove(gamebox,h,w);		//move curse in window, (window, y, x)
 			if(map[h][w]==EMPTY){
 				waddch(gamebox,' ');
 			}
@@ -75,6 +88,9 @@ void refreshMap(){ /////////// █ ░ ▒ ▓
 	wrefresh(gamebox);
 	wrefresh(scorebox);
 }
+
+
+
 
 void setBoard(int c){
 	int i, sth;
@@ -102,6 +118,8 @@ void setBoard(int c){
 }
 
 
+
+
 void moveBoard(int d){
 	int i;
 
@@ -115,11 +133,17 @@ void moveBoard(int d){
 	}
 }
 
-void *ballThreadFunc(void* data){
+
+
+
+void *ballThreadFunc(){
 	while(test_time!=-1){
 		setBallPos();
 	}
 }
+
+
+
 
 void* stopwatch(){
 	while(test_time!=-1){
@@ -127,6 +151,9 @@ void* stopwatch(){
 		sleep(1);
 	}
 }
+
+
+
 
 void setBallPos(){
 	int temp;
@@ -168,6 +195,8 @@ void setBallPos(){
 }
 
 
+
+
 void setBallDel(int what){
 	if(map[current_ballX][current_ballY-1]!=EMPTY){
 		//if left is not empty
@@ -206,6 +235,8 @@ void setBallDel(int what){
 }
 
 
+
+
 void makebrick(){
 	int i, j;
 
@@ -218,83 +249,28 @@ void makebrick(){
 	}
 }
 
-void deleteBrick(int what, int x, int y)
-{
-	int xpos = current_ballX+x, ypos = current_ballY+y;
-	int temp = ypos;
 
-	// 1. normal bricks control.
-	if(what == BRICK3 || what == BRICK2 || what == BRICK1) {
+
+
+void deleteBrick(int what, int x, int y){
+	int xpos = current_ballX+x, ypos=current_ballY+y;
+	int temp=ypos;
+
+	if(what==BRICK3 || what==BRICK2||what==BRICK1){
 		map[xpos][ypos]--;
-		while(map[xpos][--temp]!=EMPTY) {
+		while(map[xpos][--temp]!=EMPTY){
 			map[xpos][temp]--;
-		} // for left bricks
-
-		temp = ypos;
-		while(map[xpos][++temp]!=EMPTY) {
-			map[xpos][temp]--;
-		} // for right bricks
-
-		brick_left--;
-		// bricks counter.
-	}
-
-	// 2. explosive bricks control.
-	/* left hit, -1 left bricks. right hit, -1 right bricks.
-	   top and bottom hit, remove top bottom bricks.
-	   using recursive call.	             	       */
-	else if(what == BRICKE) {
-		map[xpos][ypos] = 0;
-
-		while(map[xpos][--temp]!=EMPTY) {
-			map[xpos][temp] = 0;
-		{
-
-		temp = ypos;
-		while(map[xpos][++temp]!=EMPTY) {
-			map[xpos][temp] = 0;
 		}
-		brick_left--; // bricks counter.
-
-		//explosive function.
-		if(map[xpos][ypos-2] != EMPTY || map[xpos][ypos-2] != WALL) {
-			deletebrick(map[xpos][ypos-2] ,xpos, ypos-2);
-		} // left
-
-		else if(map[xpos][ypos+2] != EMPTY || map[xpos][ypos+2] != WALL) {
-			deletebrick(map[xpos][ypos+2] ,xpos, ypos+2);
-		} // right
-
-		else if (map[xpos+1][ypos] != EMPTY || map[xpos+1][ypos] != WALL) {
-			deletebrick(map[xpos+1][ypos], xpos+1, ypos);
-			deletebrick(map[xpos-1][ypos], xpos-1, ypos);
-		} // top and bottom.
-
-		else if (map[xpos-1][ypos] != EMPTY || map[xpos-1][ypos] != WALL) {
-			deletebrick(map[xpos+1][ypos], xpos+1, ypos);
-			deletebrick(map[xpos-1][ypos], xpos-1, ypos);
-		} // top and bottom.
-
-	} // left brick remove.
-
-
-	// 3. invisible bricks control.
-	else if(what == BRICKU) {
-		map[xpos][ypos] = 1;
-		while(map[xpos][--temp]!=EMPTY) {
-			map[xpos][temp] = 1;
-		} // make it level one block. left
-
-		temp = ypos;
-		while(map[xpos][++temp]!=EMPTY) {
-			map[xpos][temp] = 1;
-		} // right
-
+		temp=ypos;
+		while(map[xpos][++temp]!=EMPTY){
+			map[xpos][temp]--;
+		}
 		brick_left--;
-                // bricks counter.
 	}
-
 }
+
+
+
 
 void BOX(WINDOW* win, int X,int Y, int color){
 	box(win,ACS_VLINE|color,ACS_HLINE|color);
@@ -304,7 +280,10 @@ void BOX(WINDOW* win, int X,int Y, int color){
     mvwaddch(win, Y-1,X-1 ,ACS_LRCORNER|color);
 }
 
-void initialize() //80 x 26
+
+
+
+void initialize() //80 x 24
 {
 	int h, w;
 	char ch;
@@ -365,7 +344,14 @@ void initialize() //80 x 26
    refreshMap();	//first show map
 }
 
+
+
+
 void highscore(int code){
+	//to present high score.
+	//if there's no 'score.txt' file, make new one and set high score to 1000.
+	//else read from file and show
+
 	int temp;
 	char buffer[10];
 	int fd;
