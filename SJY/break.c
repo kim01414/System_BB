@@ -305,16 +305,22 @@ void initialize() //80 x 26
 
 void highscore(int code){
 	int temp;
-	FILE *f;
+	char buffer[10];
+	int fd;
 	if(code==0){ //Just Read
-		if( (f=fopen("score.txt","r"))==NULL){
+		if( (fd=open("score.txt",O_RDONLY))==-1){
 			test_high=1000;
 		}
-		else fscanf(f,"%d",&test_high);
+		else{
+			read(fd,buffer,10);
+			temp = atoi(buffer);
+			test_high=temp;
+		} //fscanf(f,"%d",&test_high);
 	}
 	else if(code==1){ //Update highscore
-		f=fopen("score.txt","w");
-		fprintf(f,"%d",test_high);
+		fd=open("score.txt",O_CREAT|O_WRONLY);
+		sprintf(buffer,"%d",test_high);
+		write(fd,buffer,10);
 	}
-	fclose(f);
+	close(fd);
 }
