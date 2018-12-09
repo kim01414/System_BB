@@ -10,7 +10,7 @@
 
 int map[MAP_HEIGHT][MAP_WIDTH];
 int current_board;
-int current_ballX, current_ballY;	
+int current_ballX, current_ballY;
 int dx=-1, dy=-1;		//ball delta
 int brick_left=0;
 int test_stage=1, test_score=0, test_time=0, test_high;
@@ -18,10 +18,10 @@ int test_stage=1, test_score=0, test_time=0, test_high;
 WINDOW *gamebox, *scorebox;
 
 int main(){
-	int h, w; 		//height and width variables for loop	
+	int h, w; 		//height and width variables for loop
 	int q=1, c=1;	//don't care variables..? not quite importent things
 	char ch;
-	
+
 	//to make ball thread
 	pthread_t ballThread, TimeThread;
 	int thr_id;
@@ -31,7 +31,7 @@ int main(){
 	/*	Initialize	*/
 	highscore(0);
 	initialize();
-	
+
 	thr_id = pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
 	thr_id = pthread_create(&TimeThread, NULL, stopwatch, NULL);
 	while(test_time!=-1){
@@ -43,12 +43,61 @@ int main(){
 	return 0;
 }
 
+void test1(){
+	int i, j;
+
+	for(i=4; i<5; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK3;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+	for(i=5; i<6; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK2;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+	for(i=6; i<7; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICKE;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+	for(i=7; i<8; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICKU;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+	for(i=9; i<10; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK1;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+}
+
 void refreshMap(){ /////////// █ ░ ▒ ▓
 	int h, w;
 	mvwprintw(scorebox,2,6,"%3d",test_stage);
 	mvwprintw(scorebox,5,3,"%8d",test_high);
 	mvwprintw(scorebox,8,3,"%8d",test_score);
-	mvwprintw(scorebox,11,8,"%3d",test_time);
+	mvwprintw(scorebox,11,8,"%3d",test_time);	
 	for(h=0; h<MAP_HEIGHT; h++){
 		for(w=0; w<MAP_WIDTH; w++){
 			wmove(gamebox,h,w);
@@ -104,6 +153,8 @@ void setBoard(int c){
 
 void moveBoard(int d){
 	int i;
+
+
 	if(d==-1){
 		map[BOARD_HEIGHT][current_board+7]=EMPTY;	//set rightend to empty
 		map[BOARD_HEIGHT][--current_board]=BOARD;	//set leftend to board
@@ -150,7 +201,7 @@ void setBallPos(){
 			echo();
 			endwin();
 			exit(1);
-			break;	
+			break;
 	}
 
 
@@ -162,44 +213,52 @@ void setBallPos(){
 	map[current_ballX][current_ballY]=BALL;
 
 	refreshMap();
-	usleep(200000);	
+	usleep(200000);
 }
 
 
+
 void setBallDel(int what){
-	if(map[current_ballX][current_ballY-1]!=EMPTY){
-		//if left is not empty
-		dy=1;
-		deleteBrick(what, 0,-1);
-	}else if(map[current_ballX][current_ballY+1]!=EMPTY){
-		//if right is not empty
-		dy=-1;
-		deleteBrick(what, 0, 1);
-	}else if(map[current_ballX-1][current_ballY]!=EMPTY){
-		//if up is not empty
-		dx=1;
-		deleteBrick(what, -1, 0);
-	}else if(map[current_ballX+1][current_ballY]!=EMPTY){
-		//if down is not empty
-		dx=-1;
-		deleteBrick(what, 1, 0);
-	}else if(map[current_ballX-1][current_ballY-1]!=EMPTY){
-		//if top left corner is not empty
-		//this may be work if ball collide at the corner of bricks or board
-		dx=1; dy=1;
-		deleteBrick(what, -1, -1);
-	}else if(map[current_ballX-1][current_ballY+1]!=EMPTY){
-		//if top right corner is not empty
-		dx=1; dy=-1;
-		deleteBrick(what, -1, 1);
-	}else if(map[current_ballX+1][current_ballY-1]!=EMPTY){
-		//if bottom left corner is not empty
-		dx=-1; dy=1;
-		deleteBrick(what, 1, -1);
-	}else if(map[current_ballX+1][current_ballY+1]!=EMPTY){
-		//if bottom right corner is not empty
-		dx=-1; dy=-1;
-		deleteBrick(what, 1, 1);
+	int temp_x = current_ballX + dx;
+	int temp_y = current_ballY + dy;
+
+	
+	if(map[temp_x][temp_y] != EMPTY){
+		if(map[temp_x][temp_y] == BOARD){
+			// change delta despite board's position
+			if(temp_y <= current_board+2 ){
+				dx *= -1;
+				if(dy == 0)
+					dy = -1;
+			}else if(temp_y > current_board+2 && temp_y <= current_board+4){
+				dx *= -1;
+				dy = 0;
+			}else if(temp_y > current_board+4 && temp_y <= current_board+7){
+				dx *= -1;
+				if(dy == 0)
+					dy = 1;
+			}
+
+		} else if(map[temp_x][temp_y] == WALL || map[temp_x][temp_y] == WALL_BOTTOM){
+			if(temp_y == 0 || temp_y == MAP_WIDTH-1){	// meet right, left wall
+				dy *= -1;
+			}else if(temp_x == 0 || temp_y == MAP_HEIGHT-1){// meet up, down wall
+				dx *= -1;
+			}
+			else if(temp_x <= 0 && temp_y <= 0){// meet left edge
+				dx *= -1;
+				dy *= -1;
+			}
+			else if(temp_x <= 0 && temp_y <= MAP_WIDTH-1){// meet right edge
+				dx *= -1;
+				dy *= -1;
+			}
+
+			deleteBrick(what, dx, dy);
+		}else{									// meet bricks
+			deleteBrick(what, dx, dy);
+			dx *= -1;	
+		}	
 	}
 }
 
@@ -216,22 +275,82 @@ void makebrick(){
 	}
 }
 
+void deleteBrick(int what, int x, int y)
+{
+	int xpos = current_ballX+x, ypos = current_ballY+y;
+	int temp = ypos;
 
-void deleteBrick(int what, int x, int y){
-	int xpos = current_ballX+x, ypos=current_ballY+y;
-	int temp=ypos;
-
-	if(what==BRICK3 || what==BRICK2||what==BRICK1){
+	// 1. normal bricks control.
+	if(what == BRICK3 || what == BRICK2 || what == BRICK1) {
 		map[xpos][ypos]--;
-		while(map[xpos][--temp]!=EMPTY){
+		while(map[xpos][--temp]!=EMPTY) {
 			map[xpos][temp]--;
-		}
-		temp=ypos;
-		while(map[xpos][++temp]!=EMPTY){
+		} // for left bricks
+
+		temp = ypos;
+		while(map[xpos][++temp]!=EMPTY) {
 			map[xpos][temp]--;
-		}
+		} // for right bricks
+
 		brick_left--;
+		// bricks counter.
 	}
+
+	// 2. explosive bricks control.
+	/* left hit, -1 left bricks. right hit, -1 right bricks.
+	   top and bottom hit, remove top bottom bricks.
+	   using recursive call.	             	       */
+	else if(what == BRICKE) {
+		map[xpos][ypos] = 0;
+
+		while(map[xpos][--temp]!=EMPTY) {
+			map[xpos][temp] = 0;
+		}
+
+		temp = ypos;
+		while(map[xpos][++temp]!=EMPTY) {
+			map[xpos][temp] = 0;
+		}
+		brick_left--; // bricks counter.
+
+		//explosive function.
+		if(map[xpos][ypos-2] != EMPTY || map[xpos][ypos-2] != WALL) {
+			deleteBrick(map[xpos][ypos-2] ,xpos, ypos-2);
+		} // left
+
+		else if(map[xpos][ypos+2] != EMPTY || map[xpos][ypos+2] != WALL) {
+			deleteBrick(map[xpos][ypos+2] ,xpos, ypos+2);
+		} // right
+
+		else if (map[xpos+1][ypos] != EMPTY || map[xpos+1][ypos] != WALL) {
+			deleteBrick(map[xpos+1][ypos], xpos+1, ypos);
+			deleteBrick(map[xpos-1][ypos], xpos-1, ypos);
+		} // top and bottom.
+
+		else if (map[xpos-1][ypos] != EMPTY || map[xpos-1][ypos] != WALL) {
+			deleteBrick(map[xpos+1][ypos], xpos+1, ypos);
+			deleteBrick(map[xpos-1][ypos], xpos-1, ypos);
+		} // top and bottom.
+
+	} // left brick remove.
+
+
+	// 3. invisible bricks control.
+	else if(what == BRICKU) {
+		map[xpos][ypos] = 1;
+		while(map[xpos][--temp]!=EMPTY) {
+			map[xpos][temp] = 1;
+		} // make it level one block. left
+
+		temp = ypos;
+		while(map[xpos][++temp]!=EMPTY) {
+			map[xpos][temp] = 1;
+		} // right
+
+		brick_left--;
+                // bricks counter.
+	}
+
 }
 
 void BOX(WINDOW* win, int X,int Y, int color){
@@ -299,7 +418,7 @@ void initialize() //80 x 26
 	
 	wrefresh(scorebox);
 	wrefresh(gamebox);
-	
+
 	current_board = MAP_WIDTH/2-4;	//set board at centre
 	current_ballX = BOARD_HEIGHT-1;	//set ballX above the board
 	current_ballY = MAP_WIDTH/2;		//set ballY at centre
@@ -321,7 +440,8 @@ void initialize() //80 x 26
 		}
 	}
 	map[current_ballX][current_ballY] = BALL;
-	makebrick();
+	test1();
+	//	makebrick();
 	refreshMap();
 
    //Press Key to Start popup
