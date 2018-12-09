@@ -46,33 +46,50 @@ int main(){
 void test1(){
 	int i, j;
 
-	for(i=4; i<BRICK_HEIGHT; i+=2) {
-		for(j=7; j<8; j++){
-			map[i][j]=BRICK3;
-			brick_left+=2;
-			if(j%4==1) j++;
-		}
-		for(j=8; j<9; j++) {
-			map[i][j]=BRICK2;
-			brick_left+=2;
-			if(j%4==1) j++;
-		}
-		for(j=9; j<10; j++) {
-			map[i][j]=BRICK1;
-			brick_left+=2;
-			if(j%4==1) j++;
-		}
-		for(j=10; j<11; j++) {
-			map[i][j]=BRICKE;
-			brick_left+=2;
-			if(j%4==1) j++;
-		}
-		for(j=11; j<12; j++) {
-			map[i][j]=BRICKU;
-			brick_left+=2;
-			if(j%4==1) j++;
+	for(i=4; i<5; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK3;
+			brick_left += 2;
+			if(j %4 == 1) j++;
 		}
 	}
+
+	for(i=5; i<6; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK2;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+	for(i=6; i<7; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICKE;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+	for(i=7; i<8; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICKU;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+	for(i=9; i<10; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK1;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
 }
 
 void refreshMap(){ /////////// █ ░ ▒ ▓

@@ -15,6 +15,14 @@
 #define BALL 5
 #define EMPTY 0
 
+// global values
+/*int map[MAP_HEIGHT][MAP_WIDTH];
+int current_board;
+int current_ballX, current_ballY;
+int dx=-1, dy=-1;		//ball delta
+int brick_left=0;
+int test_stage=1, test_score=0, test_time=0, test_high;
+*/
 // board functions
 void setBoard(int c);
 void moveBoard(int d);
