@@ -94,10 +94,10 @@ void test1(){
 
 void refreshMap(){ /////////// █ ░ ▒ ▓
 	int h, w;
-	mvwprintw(scorebox,2,7,"%3d",test_stage);
-	mvwprintw(scorebox,2,29,"%7d",test_high);
-	mvwprintw(scorebox,2,40,"%7d",test_score);
-	mvwprintw(scorebox,2,53,"%4d",test_time);
+	mvwprintw(scorebox,2,6,"%3d",test_stage);
+	mvwprintw(scorebox,5,3,"%8d",test_high);
+	mvwprintw(scorebox,8,3,"%8d",test_score);
+	mvwprintw(scorebox,11,8,"%3d",test_time);	
 	for(h=0; h<MAP_HEIGHT; h++){
 		for(w=0; w<MAP_WIDTH; w++){
 			wmove(gamebox,h,w);
@@ -378,18 +378,44 @@ void initialize() //80 x 26
 	init_pair(3,COLOR_WHITE,COLOR_BLACK);
 	init_pair(4,COLOR_BLUE,COLOR_WHITE);
 	init_pair(5,COLOR_GREEN,COLOR_WHITE);
-	gamebox = newwin(22,62,4,9);
-	scorebox = newwin(4,62,0,9);
+	init_pair(6,COLOR_GREEN,COLOR_BLACK);
+	attron(A_BOLD|COLOR_PAIR(6));
+	gamebox = newwin(22,62,1,0);
+	scorebox = newwin(22,17,1,63);
 	wattron(gamebox,COLOR_PAIR(1));
 	BOX(gamebox,62,22,COLOR_PAIR(3));
-	BOX(scorebox,62,4,COLOR_PAIR(3));
+	box(scorebox,ACS_VLINE,ACS_HLINE);
 	refresh();
 	wattron(scorebox,A_BOLD);
-	mvwprintw(scorebox,1,5, "STAGE");
-	mvwprintw(scorebox,1,26,"HIGH SCORE");
-	mvwprintw(scorebox,1,42,"SCORE");
-	mvwprintw(scorebox,1,53,"TIME");
+	mvwprintw(scorebox,1,6, "STAGE");
+	for(h=0 ; h<17 ; h++){
+		if(h==0){
+			mvwaddch(scorebox,3,0,ACS_LTEE);
+			mvwaddch(scorebox,6,0,ACS_LTEE);
+			mvwaddch(scorebox,9,0,ACS_LTEE);
+			mvwaddch(scorebox,12,0,ACS_LTEE);
+		}
+		else if(h==16){
+			mvwaddch(scorebox,3,16,ACS_RTEE);
+			mvwaddch(scorebox,6,16,ACS_RTEE);
+			mvwaddch(scorebox,9,16,ACS_RTEE);
+			mvwaddch(scorebox,12,16,ACS_RTEE);
+		}
+		else{
+			mvwaddch(scorebox,3,h,ACS_HLINE);
+			mvwaddch(scorebox,6,h,ACS_HLINE);
+			mvwaddch(scorebox,9,h,ACS_HLINE);
+			mvwaddch(scorebox,12,h,ACS_HLINE);
+		}
+	}
+	mvwprintw(scorebox,4,4,"HIGH SCORE");
+	mvwprintw(scorebox,7,6,"SCORE");
+	mvwprintw(scorebox,10,7,"TIME");
+	mvwprintw(scorebox,15,3,"==Made by==");
 	wattroff(scorebox,A_BOLD);
+	mvwprintw(scorebox,16,5,"SJY,HJS");
+	mvwprintw(scorebox,17,5,"YTH,KYH");
+	
 	wrefresh(scorebox);
 	wrefresh(gamebox);
 
