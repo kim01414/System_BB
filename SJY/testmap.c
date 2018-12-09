@@ -1,4 +1,4 @@
-void makebrick(){
+void test1(){
 	int i, j;
 
 	for(i=4; i<BRICK_HEIGHT; i+=2) {
