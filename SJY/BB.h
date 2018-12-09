@@ -10,6 +10,8 @@
 #define BRICK1 1
 #define BRICK2 2
 #define BRICK3 3
+#define BRICKE 5 // explosion
+#define BRICKU 6 // invisiable
 #define BOARD 4
 #define BALL 5
 #define EMPTY 0
