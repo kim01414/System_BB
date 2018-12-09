@@ -280,7 +280,7 @@ void deleteBrick(int what, int x, int y)
 
 		while(map[xpos][--temp]!=EMPTY) {
 			map[xpos][temp] = 0;
-		{
+		}
 
 		temp = ypos;
 		while(map[xpos][++temp]!=EMPTY) {
@@ -290,21 +290,21 @@ void deleteBrick(int what, int x, int y)
 
 		//explosive function.
 		if(map[xpos][ypos-2] != EMPTY || map[xpos][ypos-2] != WALL) {
-			deletebrick(map[xpos][ypos-2] ,xpos, ypos-2);
+			deleteBrick(map[xpos][ypos-2] ,xpos, ypos-2);
 		} // left
 
 		else if(map[xpos][ypos+2] != EMPTY || map[xpos][ypos+2] != WALL) {
-			deletebrick(map[xpos][ypos+2] ,xpos, ypos+2);
+			deleteBrick(map[xpos][ypos+2] ,xpos, ypos+2);
 		} // right
 
 		else if (map[xpos+1][ypos] != EMPTY || map[xpos+1][ypos] != WALL) {
-			deletebrick(map[xpos+1][ypos], xpos+1, ypos);
-			deletebrick(map[xpos-1][ypos], xpos-1, ypos);
+			deleteBrick(map[xpos+1][ypos], xpos+1, ypos);
+			deleteBrick(map[xpos-1][ypos], xpos-1, ypos);
 		} // top and bottom.
 
 		else if (map[xpos-1][ypos] != EMPTY || map[xpos-1][ypos] != WALL) {
-			deletebrick(map[xpos+1][ypos], xpos+1, ypos);
-			deletebrick(map[xpos-1][ypos], xpos-1, ypos);
+			deleteBrick(map[xpos+1][ypos], xpos+1, ypos);
+			deleteBrick(map[xpos-1][ypos], xpos-1, ypos);
 		} // top and bottom.
 
 	} // left brick remove.
