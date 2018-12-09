@@ -1,2 +1,2 @@
-gcc break.c msg.c -pthread -lncurses -o break
-./break
+gcc testmap.c break.c msg.c -pthread -lncurses -o break
+
