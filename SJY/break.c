@@ -1,11 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <curses.h>
-#include <signal.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <locale.h>
 #include "BB.h"
 
 int map[MAP_HEIGHT][MAP_WIDTH];
@@ -13,9 +5,10 @@ int current_board;
 int current_ballX, current_ballY;
 int dx=-1, dy=-1;		//ball delta
 int brick_left=0;
-int test_stage=1, test_score=0, test_time=0, test_high;
+int test_stage=1, test_score=0, test_time=-1, test_high;
+pthread_t ballThread, TimeThread;
 
-WINDOW *gamebox, *scorebox;
+WINDOW *gamebox, *scorebox, *welcome;
 
 int main(){
 	int h, w; 		//height and width variables for loop
@@ -23,21 +16,27 @@ int main(){
 	char ch;
 
 	//to make ball thread
-	pthread_t ballThread, TimeThread;
+	
 	int thr_id;
 	int status;
-
-
-	/*	Initialize	*/
-	highscore(0);
-	initialize();
-
-	thr_id = pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
-	thr_id = pthread_create(&TimeThread, NULL, stopwatch, NULL);
-	while(test_time!=-1){
-		c=wgetch(stdscr);	//if user input arrow key
-		setBoard(c);		//handle arrow key
-		refreshMap();		//loop continue
+	initscr();
+	start_color();
+	curs_set(0);	//make user can't see the cursor
+	noecho();
+	refresh();
+	pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
+	pthread_create(&TimeThread, NULL, stopwatch, NULL);
+	while(1){
+		mainmenu();
+		/*	Initialize	*/
+		highscore(0);
+		initialize();
+		test_time=0;
+		while(test_time!=-1){
+			c=wgetch(stdscr);	//if user input arrow key
+			setBoard(c);		//handle arrow key
+			refreshMap();		//loop continue
+		}
 	}
 	endwin();	//end curses
 	return 0;
@@ -97,7 +96,8 @@ void refreshMap(){ /////////// █ ░ ▒ ▓
 	mvwprintw(scorebox,2,6,"%3d",test_stage);
 	mvwprintw(scorebox,5,3,"%8d",test_high);
 	mvwprintw(scorebox,8,3,"%8d",test_score);
-	mvwprintw(scorebox,11,8,"%3d",test_time);	
+	if(test_time!=-1)mvwprintw(scorebox,11,8,"%3d",test_time);	
+	else mvwprintw(scorebox,11,8,"  0");
 	for(h=0; h<MAP_HEIGHT; h++){
 		for(w=0; w<MAP_WIDTH; w++){
 			wmove(gamebox,h,w);
@@ -165,16 +165,20 @@ void moveBoard(int d){
 }
 
 void *ballThreadFunc(void* data){
-	while(test_time!=-1){
-		setBallPos();
+	while(1){
+		if(test_time!=-1)setBallPos();
 	}
+	pthread_exit(NULL);
 }
 
 void* stopwatch(){
-	while(test_time!=-1){
-		test_time++;
-		sleep(1);
+	while(1){
+		if(test_time!=-1){
+			test_time++;
+			sleep(1);
+		}
 	}
+	pthread_exit(NULL);
 }
 
 void setBallPos(){
@@ -198,10 +202,8 @@ void setBallPos(){
 			highscore(1);
 			test_time=-1;
 			gameover(test_score,test_high);
-			echo();
-			endwin();
-			exit(1);
-			break;
+			wclear(gamebox);
+			return;
 	}
 
 
@@ -361,14 +363,69 @@ void BOX(WINDOW* win, int X,int Y, int color){
     mvwaddch(win, Y-1,X-1 ,ACS_LRCORNER|color);
 }
 
+
+void mainmenu()
+{
+	int sel=1,c;
+	welcome = newwin(22,80,1,0);
+	keypad(welcome,TRUE);
+	wattron(welcome,A_BOLD);
+	wclear(welcome);
+	//wrefresh(welcome);
+	while(1)
+	{
+		wattroff(welcome,A_DIM);
+		title();
+		box(welcome,ACS_VLINE,ACS_HLINE);
+		wattron(welcome,A_DIM);
+		if(sel==1) wattroff(welcome,A_DIM);
+			mvwaddstr(welcome,14,34,"Start Game");
+		if(sel==1) wattron(welcome,A_DIM);
+
+		if(sel==2) wattroff(welcome,A_DIM);
+			mvwaddstr(welcome,15,35,"Settings");
+		if(sel==2) wattron(welcome,A_DIM);
+
+		if(sel==3) wattroff(welcome,A_DIM);
+			mvwaddstr(welcome,16,35,"About us");
+		if(sel==3) wattron(welcome,A_DIM);
+
+		if(sel==4) wattroff(welcome,A_DIM);
+			mvwaddstr(welcome,17,37,"Exit");
+		if(sel==4) wattron(welcome,A_DIM);
+
+		wrefresh(welcome);
+		c=wgetch(welcome);
+		if(c==KEY_UP){
+			sel--;
+			if(sel<1) sel=4;
+		}
+		else if(c==KEY_DOWN){
+			sel++;
+			if(sel>4) sel=1;
+		}
+		else if(c=='\n'){
+			if(sel==4){
+				clear();
+				endwin();
+				exit(0);
+			}
+			else if(sel==3) about();
+			else if(sel==1) {
+				clear();
+				refresh();
+				delwin(welcome);
+				return;
+			}
+		}
+	}	
+	
+}
+
 void initialize() //80 x 26
 {
 	int h, w;
 	char ch;
-	//setlocale(LC_ALL, "ko_KR.utf8");
-	//setlocale(LC_CTYPE, "ko_KR.utf8");
-	initscr();
-	start_color();
 	clear();		//initialise screen
 	curs_set(0);	//make user can't see the cursor
 	noecho();
@@ -411,10 +468,6 @@ void initialize() //80 x 26
 	mvwprintw(scorebox,4,4,"HIGH SCORE");
 	mvwprintw(scorebox,7,6,"SCORE");
 	mvwprintw(scorebox,10,7,"TIME");
-	mvwprintw(scorebox,15,3,"==Made by==");
-	wattroff(scorebox,A_BOLD);
-	mvwprintw(scorebox,16,5,"SJY,HJS");
-	mvwprintw(scorebox,17,5,"YTH,KYH");
 	
 	wrefresh(scorebox);
 	wrefresh(gamebox);
