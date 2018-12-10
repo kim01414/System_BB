@@ -5,7 +5,7 @@ int current_board;
 int current_ballX, current_ballY;
 int dx=-1, dy=-1;		//ball delta
 int brick_left=0;
-int test_stage=1, test_score=0, test_time=-1, test_high;
+int test_stage=1, test_score=0, test_time=-1, test_high, speed=SLOW;
 pthread_t ballThread, TimeThread;
 
 WINDOW *gamebox, *scorebox, *welcome;
@@ -14,19 +14,19 @@ int main(){
 	int h, w; 		//height and width variables for loop
 	int q=1, c=1;	//don't care variables..? not quite importent things
 	char ch;
-
 	//to make ball thread
-	
-	int thr_id;
-	int status;
+	int thr_id, status;
 	initscr();
 	start_color();
+	init_color(COLOR_MAGENTA,105,105,105);
+	init_pair(7,COLOR_MAGENTA,COLOR_BLACK);
 	curs_set(0);	//make user can't see the cursor
 	noecho();
 	refresh();
 	pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
 	pthread_create(&TimeThread, NULL, stopwatch, NULL);
 	while(1){
+		
 		mainmenu();
 		/*	Initialize	*/
 		highscore(0);
@@ -111,7 +111,7 @@ void refreshMap(){ /////////// █ ░ ▒ ▓
 				waddch(gamebox,'O'|A_BOLD);
 			}
 			else if(map[h][w]==BRICK3){
-				waddch(gamebox,ACS_CKBOARD|COLOR_PAIR(2));
+				waddch(gamebox,ACS_CKBOARD|COLOR_PAIR(3));
 			}
 			else if(map[h][w]==BRICK2) {
 				waddch(gamebox,ACS_CKBOARD|COLOR_PAIR(4));
@@ -215,7 +215,7 @@ void setBallPos(){
 	map[current_ballX][current_ballY]=BALL;
 
 	refreshMap();
-	usleep(200000);
+	usleep(speed);
 }
 
 
@@ -368,10 +368,10 @@ void mainmenu()
 {
 	int sel=1,c;
 	welcome = newwin(22,80,1,0);
+	
 	keypad(welcome,TRUE);
 	wattron(welcome,A_BOLD);
 	wclear(welcome);
-	//wrefresh(welcome);
 	while(1)
 	{
 		wattroff(welcome,A_DIM);
@@ -410,7 +410,14 @@ void mainmenu()
 				endwin();
 				exit(0);
 			}
-			else if(sel==3) about();
+			else if(sel==3) {
+				about();
+				sel=1;
+			}
+			else if(sel==2){
+				settings(NULL);
+				sel=1;
+			}
 			else if(sel==1) {
 				clear();
 				refresh();
@@ -431,8 +438,8 @@ void initialize() //80 x 26
 	noecho();
 	keypad(stdscr, TRUE);	//enables the reading of func keys(arrow keys)
 	init_pair(1,COLOR_BLACK,COLOR_WHITE);
-	init_pair(2,COLOR_RED,COLOR_WHITE);
-	init_pair(3,COLOR_WHITE,COLOR_BLACK);
+	init_pair(2,COLOR_WHITE,COLOR_BLACK);
+	init_pair(3,COLOR_RED,COLOR_WHITE);
 	init_pair(4,COLOR_BLUE,COLOR_WHITE);
 	init_pair(5,COLOR_GREEN,COLOR_WHITE);
 	init_pair(6,COLOR_GREEN,COLOR_BLACK);
@@ -440,7 +447,7 @@ void initialize() //80 x 26
 	gamebox = newwin(22,62,1,0);
 	scorebox = newwin(22,17,1,63);
 	wattron(gamebox,COLOR_PAIR(1));
-	BOX(gamebox,62,22,COLOR_PAIR(3));
+	BOX(gamebox,62,22,COLOR_PAIR(2));
 	box(scorebox,ACS_VLINE,ACS_HLINE);
 	refresh();
 	wattron(scorebox,A_BOLD);
