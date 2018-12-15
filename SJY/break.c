@@ -43,12 +43,61 @@ int main(){
 	return 0;
 }
 
-void refreshMap(){ /////////// █ ░ ▒ ▓
+void test1(){
+	int i, j;
+
+	for(i=4; i<5; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK3;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+	for(i=5; i<6; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK2;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+	for(i=6; i<7; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICKE;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+	for(i=7; i<8; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICKU;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+	for(i=9; i<10; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK1;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+}
+
+void refreshMap(){ /////////// â–ˆ â–‘ â–’ â–“
 	int h, w;
-	mvwprintw(scorebox,2,7,"%3d",test_stage);
-	mvwprintw(scorebox,2,29,"%7d",test_high);
-	mvwprintw(scorebox,2,40,"%7d",test_score);
-	mvwprintw(scorebox,2,53,"%4d",test_time);
+	mvwprintw(scorebox,2,6,"%3d",test_stage);
+	mvwprintw(scorebox,5,3,"%8d",test_high);
+	mvwprintw(scorebox,8,3,"%8d",test_score);
+	mvwprintw(scorebox,11,8,"%3d",test_time);	
 	for(h=0; h<MAP_HEIGHT; h++){
 		for(w=0; w<MAP_WIDTH; w++){
 			wmove(gamebox,h,w);
@@ -164,7 +213,7 @@ void setBallPos(){
 	map[current_ballX][current_ballY]=BALL;
 
 	refreshMap();
-	usleep(200000);
+	usleep(100000);
 }
 
 
@@ -175,37 +224,38 @@ void setBallDel(int what){
 
 	
 	if(map[temp_x][temp_y] != EMPTY){
-		if(map[temp_x][temp_y] == BOARD){
+		if(map[temp_x][temp_y] == BOARD){	// meet board
 			// change delta despite board's position
+
 			if(temp_y <= current_board+2 ){
 				dx *= -1;
 				if(dy == 0)
 					dy = -1;
+
+				
 			}else if(temp_y > current_board+2 && temp_y <= current_board+4){
 				dx *= -1;
 				dy = 0;
+				
 			}else if(temp_y > current_board+4 && temp_y <= current_board+7){
 				dx *= -1;
 				if(dy == 0)
 					dy = 1;
+				
 			}
 
 		} else if(map[temp_x][temp_y] == WALL || map[temp_x][temp_y] == WALL_BOTTOM){
 			if(temp_y == 0 || temp_y == MAP_WIDTH-1){	// meet right, left wall
 				dy *= -1;
+				if(map[current_ballX + dx][current_ballY + dy] == BOARD)
+					dx *= -1;
+
 			}else if(temp_x == 0 || temp_y == MAP_HEIGHT-1){// meet up, down wall
 				dx *= -1;
+				if(map[current_ballX + dx][current_ballY + dy] == WALL)
+					dy *= -1;
 			}
-			else if(temp_x <= 0 && temp_y <= 0){// meet left edge
-				dx *= -1;
-				dy *= -1;
-			}
-			else if(temp_x <= 0 && temp_y <= MAP_WIDTH-1){// meet right edge
-				dx *= -1;
-				dy *= -1;
-			}
-
-			deleteBrick(what, dx, dy);
+			
 		}else{									// meet bricks
 			deleteBrick(what, dx, dy);
 			dx *= -1;	
@@ -256,7 +306,7 @@ void deleteBrick(int what, int x, int y)
 
 		while(map[xpos][--temp]!=EMPTY) {
 			map[xpos][temp] = 0;
-		{
+		}
 
 		temp = ypos;
 		while(map[xpos][++temp]!=EMPTY) {
@@ -266,21 +316,21 @@ void deleteBrick(int what, int x, int y)
 
 		//explosive function.
 		if(map[xpos][ypos-2] != EMPTY || map[xpos][ypos-2] != WALL) {
-			deletebrick(map[xpos][ypos-2] ,xpos, ypos-2);
+			deleteBrick(map[xpos][ypos-2] ,xpos, ypos-2);
 		} // left
 
 		else if(map[xpos][ypos+2] != EMPTY || map[xpos][ypos+2] != WALL) {
-			deletebrick(map[xpos][ypos+2] ,xpos, ypos+2);
+			deleteBrick(map[xpos][ypos+2] ,xpos, ypos+2);
 		} // right
 
 		else if (map[xpos+1][ypos] != EMPTY || map[xpos+1][ypos] != WALL) {
-			deletebrick(map[xpos+1][ypos], xpos+1, ypos);
-			deletebrick(map[xpos-1][ypos], xpos-1, ypos);
+			deleteBrick(map[xpos+1][ypos], xpos+1, ypos);
+			deleteBrick(map[xpos-1][ypos], xpos-1, ypos);
 		} // top and bottom.
 
 		else if (map[xpos-1][ypos] != EMPTY || map[xpos-1][ypos] != WALL) {
-			deletebrick(map[xpos+1][ypos], xpos+1, ypos);
-			deletebrick(map[xpos-1][ypos], xpos-1, ypos);
+			deleteBrick(map[xpos+1][ypos], xpos+1, ypos);
+			deleteBrick(map[xpos-1][ypos], xpos-1, ypos);
 		} // top and bottom.
 
 	} // left brick remove.
@@ -329,18 +379,44 @@ void initialize() //80 x 26
 	init_pair(3,COLOR_WHITE,COLOR_BLACK);
 	init_pair(4,COLOR_BLUE,COLOR_WHITE);
 	init_pair(5,COLOR_GREEN,COLOR_WHITE);
-	gamebox = newwin(22,62,4,9);
-	scorebox = newwin(4,62,0,9);
+	init_pair(6,COLOR_GREEN,COLOR_BLACK);
+	attron(A_BOLD|COLOR_PAIR(6));
+	gamebox = newwin(22,62,1,0);
+	scorebox = newwin(22,17,1,63);
 	wattron(gamebox,COLOR_PAIR(1));
 	BOX(gamebox,62,22,COLOR_PAIR(3));
-	BOX(scorebox,62,4,COLOR_PAIR(3));
+	box(scorebox,ACS_VLINE,ACS_HLINE);
 	refresh();
 	wattron(scorebox,A_BOLD);
-	mvwprintw(scorebox,1,5, "STAGE");
-	mvwprintw(scorebox,1,26,"HIGH SCORE");
-	mvwprintw(scorebox,1,42,"SCORE");
-	mvwprintw(scorebox,1,53,"TIME");
+	mvwprintw(scorebox,1,6, "STAGE");
+	for(h=0 ; h<17 ; h++){
+		if(h==0){
+			mvwaddch(scorebox,3,0,ACS_LTEE);
+			mvwaddch(scorebox,6,0,ACS_LTEE);
+			mvwaddch(scorebox,9,0,ACS_LTEE);
+			mvwaddch(scorebox,12,0,ACS_LTEE);
+		}
+		else if(h==16){
+			mvwaddch(scorebox,3,16,ACS_RTEE);
+			mvwaddch(scorebox,6,16,ACS_RTEE);
+			mvwaddch(scorebox,9,16,ACS_RTEE);
+			mvwaddch(scorebox,12,16,ACS_RTEE);
+		}
+		else{
+			mvwaddch(scorebox,3,h,ACS_HLINE);
+			mvwaddch(scorebox,6,h,ACS_HLINE);
+			mvwaddch(scorebox,9,h,ACS_HLINE);
+			mvwaddch(scorebox,12,h,ACS_HLINE);
+		}
+	}
+	mvwprintw(scorebox,4,4,"HIGH SCORE");
+	mvwprintw(scorebox,7,6,"SCORE");
+	mvwprintw(scorebox,10,7,"TIME");
+	mvwprintw(scorebox,15,3,"==Made by==");
 	wattroff(scorebox,A_BOLD);
+	mvwprintw(scorebox,16,5,"SJY,HJS");
+	mvwprintw(scorebox,17,5,"YTH,KYH");
+	
 	wrefresh(scorebox);
 	wrefresh(gamebox);
 
@@ -395,3 +471,4 @@ void highscore(int code){
 	}
 	close(fd);
 }
+
