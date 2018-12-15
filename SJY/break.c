@@ -92,7 +92,7 @@ void test1(){
 
 }
 
-void refreshMap(){ /////////// â–ˆ â–‘ â–’ â–“
+void refreshMap(){ /////////// █ ░ ▒ ▓
 	int h, w;
 	mvwprintw(scorebox,2,6,"%3d",test_stage);
 	mvwprintw(scorebox,5,3,"%8d",test_high);
@@ -471,4 +471,3 @@ void highscore(int code){
 	}
 	close(fd);
 }
-
