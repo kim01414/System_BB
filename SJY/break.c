@@ -9,11 +9,13 @@ int test_stage=1, test_score=0, test_time=-1, test_high, speed=SLOW;
 pthread_t ballThread, TimeThread;
 
 WINDOW *gamebox, *scorebox, *welcome;
+FILE* fp;
 
 int main(){
 	int h, w; 		//height and width variables for loop
 	int q=1, c=1;	//don't care variables..? not quite importent things
 	char ch;
+
 	//to make ball thread
 	int thr_id, status;
 	initscr();
@@ -25,6 +27,9 @@ int main(){
 	refresh();
 	pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
 	pthread_create(&TimeThread, NULL, stopwatch, NULL);
+
+	fp = fopen("log.txt", "w");
+
 	while(1){
 
 		mainmenu();
@@ -33,6 +38,7 @@ int main(){
 		initialize();
 		test_time=0;
 		while(test_time!=-1){
+			fprintf(fp, "ballX: %d, ballY: %d, deltaX: %d deltaY: %d\n", current_ballX, current_ballY, dx, dy);
 			c=wgetch(stdscr);	//if user input arrow key
 			setBoard(c);		//handle arrow key
 			refreshMap();		//loop continue
@@ -265,6 +271,7 @@ void setBallDel(int what){
 			deleteBrick(what, dx, dy, FALSE);
 			dx *= -1;
 		}
+
 	}
 }
 
@@ -290,12 +297,14 @@ void deleteBrick(int what, int x, int y, int boomFlag)
 		xpos = current_ballX+x;
 		ypos = current_ballY+y;
 		temp = ypos;
+		fprintf(fp, "    Brick hit!, brick: %d, brickposition: %d, %d\n", what, xpos, ypos);
 	}
 
-	if(boomFlag) {
+	if(boomFlag) { // block position.
 		xpos = x;
 		ypos = y;
 		temp = ypos;
+		fprintf(fp, "    Brick explosion!, brick: %d, brickposition: %d, %d\n", what, xpos, ypos);
 //		what = map[x][y];
 	}
 
@@ -307,6 +316,7 @@ void deleteBrick(int what, int x, int y, int boomFlag)
 		} // for left bricks
 
 		temp = ypos;
+
 		while(map[xpos][++temp]!=EMPTY) {
 			map[xpos][temp]--;
 		} // for right bricks
@@ -341,12 +351,12 @@ void deleteBrick(int what, int x, int y, int boomFlag)
 			deleteBrick(map[xpos][ypos+2] ,xpos, ypos+2, TRUE);
 		} // right
 
-		else if (map[xpos+1][ypos] != EMPTY || map[xpos+1][ypos] != WALL) {
+		else if (map[xpos+2][ypos] != EMPTY || map[xpos+2][ypos] != WALL) {
 			deleteBrick(map[xpos+2][ypos], xpos+2, ypos, TRUE);
 			deleteBrick(map[xpos-2][ypos], xpos-2, ypos, TRUE);
 		} // top and bottom.
 
-		else if (map[xpos-1][ypos] != EMPTY || map[xpos-1][ypos] != WALL) {
+		else if (map[xpos-2][ypos] != EMPTY || map[xpos-2][ypos] != WALL) {
 			deleteBrick(map[xpos+2][ypos], xpos+2, ypos, TRUE);
 			deleteBrick(map[xpos-2][ypos], xpos-2, ypos, TRUE);
 		} // top and bottom.
@@ -374,10 +384,10 @@ void deleteBrick(int what, int x, int y, int boomFlag)
 
 void BOX(WINDOW* win, int X,int Y, int color){
 	box(win,ACS_VLINE|color,ACS_HLINE|color);
-	mvwaddch(win, 0,0       ,ACS_ULCORNER|color);
-    mvwaddch(win, 0,X-1    ,ACS_URCORNER|color);
-    mvwaddch(win, Y-1,0    ,ACS_LLCORNER|color);
-    mvwaddch(win, Y-1,X-1 ,ACS_LRCORNER|color);
+	mvwaddch(win, 0,  0   , ACS_ULCORNER|color);
+	mvwaddch(win, 0,  X-1 , ACS_URCORNER|color);
+	mvwaddch(win, Y-1, 0  , ACS_LLCORNER|color);
+	mvwaddch(win, Y-1, X-1, ACS_LRCORNER|color);
 }
 
 
