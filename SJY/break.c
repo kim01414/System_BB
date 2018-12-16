@@ -9,11 +9,13 @@ int test_stage=1, test_score=0, test_time=-1, test_high, speed=SLOW;
 pthread_t ballThread, TimeThread;
 
 WINDOW *gamebox, *scorebox, *welcome;
+FILE* fp;
 
 int main(){
 	int h, w; 		//height and width variables for loop
 	int q=1, c=1;	//don't care variables..? not quite importent things
 	char ch;
+
 	//to make ball thread
 	int thr_id, status;
 	initscr();
@@ -25,14 +27,18 @@ int main(){
 	refresh();
 	pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
 	pthread_create(&TimeThread, NULL, stopwatch, NULL);
+
+	fp = fopen("log.txt", "w");
+
 	while(1){
-		
+
 		mainmenu();
 		/*	Initialize	*/
 		highscore(0);
 		initialize();
 		test_time=0;
 		while(test_time!=-1){
+			fprintf(fp, "ballX: %d, ballY: %d, deltaX: %d deltaY: %d\n", current_ballX, current_ballY, dx, dy);
 			c=wgetch(stdscr);	//if user input arrow key
 			setBoard(c);		//handle arrow key
 			refreshMap();		//loop continue
@@ -42,11 +48,10 @@ int main(){
 	return 0;
 }
 
-
 void test1(){
 	int i, j;
 
-	for(i=4; i<5; i+=2) {
+	for(i=3; i<4; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
 			map[i][j] = BRICK3;
 			brick_left += 2;
@@ -54,16 +59,16 @@ void test1(){
 		}
 	}
 
-	for(i=5; i<6; i+=2) {
+	/*for(i=5; i<6; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
 			map[i][j] = BRICK2;
 			brick_left += 2;
 			if(j %4 == 1) j++;
 		}
-	}
+	}*/
 
 
-	for(i=6; i<7; i+=2) {
+	for(i=12; i<13; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
 			map[i][j] = BRICKE;
 			brick_left += 2;
@@ -72,7 +77,7 @@ void test1(){
 	}
 
 
-	for(i=7; i<8; i+=2) {
+	for(i=6; i<7; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
 			map[i][j] = BRICKU;
 			brick_left += 2;
@@ -97,9 +102,9 @@ void refreshMap(){ /////////// █ ░ ▒ ▓
 	mvwprintw(scorebox,2,6,"%3d",test_stage);
 	mvwprintw(scorebox,5,3,"%8d",test_high);
 	mvwprintw(scorebox,8,3,"%8d",test_score);
-	if(test_time!=-1)mvwprintw(scorebox,11,8,"%3d",test_time);	
+	if(test_time!=-1)mvwprintw(scorebox,11,8,"%3d",test_time);
 	else mvwprintw(scorebox,11,8,"  0");
-  
+
 	for(h=0; h<MAP_HEIGHT; h++){
 		for(w=0; w<MAP_WIDTH; w++){
 			wmove(gamebox,h,w);
@@ -196,9 +201,11 @@ void setBallPos(){
 		case BRICK3:		//when next pos is brick, break the brick and bounce
 		case BRICK2:
 		case BRICK1:
+		case BRICKE:
+		case BRICKU:
 			setBallDel(temp);
 			test_score+=100;
-			if(test_score>=test_high) test_high=test_score; 
+			if(test_score>=test_high) test_high=test_score;
 			break;
 		case WALL_BOTTOM:	//when next pos is bottom, game end
 			highscore(1);
@@ -226,7 +233,7 @@ void setBallDel(int what){
 	int temp_x = current_ballX + dx;
 	int temp_y = current_ballY + dy;
 
-	
+
 	if(map[temp_x][temp_y] != EMPTY){
 		if(map[temp_x][temp_y] == BOARD){	// meet board
 			// change delta despite board's position
@@ -236,16 +243,16 @@ void setBallDel(int what){
 				if(dy == 0)
 					dy = -1;
 
-				
+
 			}else if(temp_y > current_board+2 && temp_y <= current_board+4){
 				dx *= -1;
 				dy = 0;
-				
+
 			}else if(temp_y > current_board+4 && temp_y <= current_board+7){
 				dx *= -1;
 				if(dy == 0)
 					dy = 1;
-				
+
 			}
 
 		} else if(map[temp_x][temp_y] == WALL || map[temp_x][temp_y] == WALL_BOTTOM){
@@ -259,11 +266,12 @@ void setBallDel(int what){
 				if(map[current_ballX + dx][current_ballY + dy] == WALL)
 					dy *= -1;
 			}
-			
+
 		}else{									// meet bricks
-			deleteBrick(what, dx, dy);
-			dx *= -1;	
-		}	
+			deleteBrick(what, dx, dy, FALSE);
+			dx *= -1;
+		}
+
 	}
 }
 
@@ -280,10 +288,25 @@ void makebrick(){
 	}
 }
 
-void deleteBrick(int what, int x, int y)
+void deleteBrick(int what, int x, int y, int boomFlag)
 {
 	int xpos = current_ballX+x, ypos = current_ballY+y;
 	int temp = ypos;
+
+	if(!boomFlag) {
+		xpos = current_ballX+x;
+		ypos = current_ballY+y;
+		temp = ypos;
+		fprintf(fp, "    Brick hit!, brick: %d, brickposition: %d, %d\n", what, xpos, ypos);
+	}
+
+	if(boomFlag) { // block position.
+		xpos = x;
+		ypos = y;
+		temp = ypos;
+		fprintf(fp, "    Brick explosion!, brick: %d, brickposition: %d, %d\n", what, xpos, ypos);
+//		what = map[x][y];
+	}
 
 	// 1. normal bricks control.
 	if(what == BRICK3 || what == BRICK2 || what == BRICK1) {
@@ -293,6 +316,7 @@ void deleteBrick(int what, int x, int y)
 		} // for left bricks
 
 		temp = ypos;
+
 		while(map[xpos][++temp]!=EMPTY) {
 			map[xpos][temp]--;
 		} // for right bricks
@@ -320,21 +344,21 @@ void deleteBrick(int what, int x, int y)
 
 		//explosive function.
 		if(map[xpos][ypos-2] != EMPTY || map[xpos][ypos-2] != WALL) {
-			deleteBrick(map[xpos][ypos-2] ,xpos, ypos-2);
+			deleteBrick(map[xpos][ypos-2] ,xpos, ypos-2, TRUE);
 		} // left
 
 		else if(map[xpos][ypos+2] != EMPTY || map[xpos][ypos+2] != WALL) {
-			deleteBrick(map[xpos][ypos+2] ,xpos, ypos+2);
+			deleteBrick(map[xpos][ypos+2] ,xpos, ypos+2, TRUE);
 		} // right
 
-		else if (map[xpos+1][ypos] != EMPTY || map[xpos+1][ypos] != WALL) {
-			deleteBrick(map[xpos+1][ypos], xpos+1, ypos);
-			deleteBrick(map[xpos-1][ypos], xpos-1, ypos);
+		else if (map[xpos+2][ypos] != EMPTY || map[xpos+2][ypos] != WALL) {
+			deleteBrick(map[xpos+2][ypos], xpos+2, ypos, TRUE);
+			deleteBrick(map[xpos-2][ypos], xpos-2, ypos, TRUE);
 		} // top and bottom.
 
-		else if (map[xpos-1][ypos] != EMPTY || map[xpos-1][ypos] != WALL) {
-			deleteBrick(map[xpos+1][ypos], xpos+1, ypos);
-			deleteBrick(map[xpos-1][ypos], xpos-1, ypos);
+		else if (map[xpos-2][ypos] != EMPTY || map[xpos-2][ypos] != WALL) {
+			deleteBrick(map[xpos+2][ypos], xpos+2, ypos, TRUE);
+			deleteBrick(map[xpos-2][ypos], xpos-2, ypos, TRUE);
 		} // top and bottom.
 
 	} // left brick remove.
@@ -360,10 +384,10 @@ void deleteBrick(int what, int x, int y)
 
 void BOX(WINDOW* win, int X,int Y, int color){
 	box(win,ACS_VLINE|color,ACS_HLINE|color);
-	mvwaddch(win, 0,0       ,ACS_ULCORNER|color);
-    mvwaddch(win, 0,X-1    ,ACS_URCORNER|color);
-    mvwaddch(win, Y-1,0    ,ACS_LLCORNER|color);
-    mvwaddch(win, Y-1,X-1 ,ACS_LRCORNER|color);
+	mvwaddch(win, 0,  0   , ACS_ULCORNER|color);
+	mvwaddch(win, 0,  X-1 , ACS_URCORNER|color);
+	mvwaddch(win, Y-1, 0  , ACS_LLCORNER|color);
+	mvwaddch(win, Y-1, X-1, ACS_LRCORNER|color);
 }
 
 
@@ -371,7 +395,7 @@ void mainmenu()
 {
 	int sel=1,c;
 	welcome = newwin(22,80,1,0);
-	
+
 	keypad(welcome,TRUE);
 	wattron(welcome,A_BOLD);
 	wclear(welcome);
@@ -428,8 +452,8 @@ void mainmenu()
 				return;
 			}
 		}
-	}	
-	
+	}
+
 }
 
 void initialize() //80 x 26
@@ -478,7 +502,7 @@ void initialize() //80 x 26
 	mvwprintw(scorebox,4,4,"HIGH SCORE");
 	mvwprintw(scorebox,7,6,"SCORE");
 	mvwprintw(scorebox,10,7,"TIME");
-	
+
 	wrefresh(scorebox);
 	wrefresh(gamebox);
 

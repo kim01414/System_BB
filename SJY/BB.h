@@ -7,6 +7,8 @@
 #include <fcntl.h>
 #include <locale.h>
 
+#define TRUE 1
+#define FALSE 0
 #define MAP_WIDTH 62	//except 2 wall lines,  make centre map to  60*20
 #define MAP_HEIGHT 22
 #define BOARD_HEIGHT MAP_HEIGHT-3	//board moves at map[19][x]
@@ -48,7 +50,7 @@ void *ballThreadFunc(void*);
 
 //brick functions
 void makebrick();
-void deleteBrick(int what, int x, int y);
+void deleteBrick(int what, int x, int y, int boomFlag);
 
 
 // map functions
