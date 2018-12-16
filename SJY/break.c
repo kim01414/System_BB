@@ -91,6 +91,55 @@ void test1(){
 
 }
 
+void test1(){
+	int i, j;
+
+	for(i=4; i<5; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK3;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+	for(i=5; i<6; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK2;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+	for(i=6; i<7; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICKE;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+	for(i=7; i<8; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICKU;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+	for(i=9; i<10; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK1;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+
+}
+
 void refreshMap(){ /////////// █ ░ ▒ ▓
 	int h, w;
 	mvwprintw(scorebox,2,6,"%3d",test_stage);
@@ -98,6 +147,7 @@ void refreshMap(){ /////////// █ ░ ▒ ▓
 	mvwprintw(scorebox,8,3,"%8d",test_score);
 	if(test_time!=-1)mvwprintw(scorebox,11,8,"%3d",test_time);	
 	else mvwprintw(scorebox,11,8,"  0");
+  
 	for(h=0; h<MAP_HEIGHT; h++){
 		for(w=0; w<MAP_WIDTH; w++){
 			wmove(gamebox,h,w);
@@ -226,37 +276,38 @@ void setBallDel(int what){
 
 	
 	if(map[temp_x][temp_y] != EMPTY){
-		if(map[temp_x][temp_y] == BOARD){
+		if(map[temp_x][temp_y] == BOARD){	// meet board
 			// change delta despite board's position
+
 			if(temp_y <= current_board+2 ){
 				dx *= -1;
 				if(dy == 0)
 					dy = -1;
+
+				
 			}else if(temp_y > current_board+2 && temp_y <= current_board+4){
 				dx *= -1;
 				dy = 0;
+				
 			}else if(temp_y > current_board+4 && temp_y <= current_board+7){
 				dx *= -1;
 				if(dy == 0)
 					dy = 1;
+				
 			}
 
 		} else if(map[temp_x][temp_y] == WALL || map[temp_x][temp_y] == WALL_BOTTOM){
 			if(temp_y == 0 || temp_y == MAP_WIDTH-1){	// meet right, left wall
 				dy *= -1;
+				if(map[current_ballX + dx][current_ballY + dy] == BOARD)
+					dx *= -1;
+
 			}else if(temp_x == 0 || temp_y == MAP_HEIGHT-1){// meet up, down wall
 				dx *= -1;
+				if(map[current_ballX + dx][current_ballY + dy] == WALL)
+					dy *= -1;
 			}
-			else if(temp_x <= 0 && temp_y <= 0){// meet left edge
-				dx *= -1;
-				dy *= -1;
-			}
-			else if(temp_x <= 0 && temp_y <= MAP_WIDTH-1){// meet right edge
-				dx *= -1;
-				dy *= -1;
-			}
-
-			deleteBrick(what, dx, dy);
+			
 		}else{									// meet bricks
 			deleteBrick(what, dx, dy);
 			dx *= -1;	
