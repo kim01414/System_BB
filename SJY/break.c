@@ -513,18 +513,23 @@ void initialize() //80 x 26
 	case 3:	mapfp = fopen("map3.txt", "r"); break;
 	}
 
-	for(int i = 0; i < MAP_WIDTH; i++)
-		for(int j = 0; j < MAP_HEIGHT; j++)
+	for(int i = 0; i < MAP_HEIGHT; i++)
+		for(int j = 0; j < MAP_WIDTH; j++)
 			fscanf(mapfp, "%d ", &map[i][j]);
 
 	current_board = MAP_WIDTH/2-4;	//set board at centre
 	current_ballX = BOARD_HEIGHT-1;	//set ballX above the board
-	current_ballY = MAP_WIDTH/2;	//set ballY at centre
 
+	for(int i = 0; i < 8; i++)
+		map[BOARD_HEIGHT][current_board+i] = BOARD;
+
+
+	current_ballY = MAP_WIDTH/2;	//set ballY at centre
+	map[current_ballX][current_ballY] = BALL;
 	refreshMap();
 
    //Press Key to Start popup
-   popup("Press Any Key to Start",0,A_BOLD|A_BLINK);
+   popup("Press Any Key to Start", 0, A_BOLD|A_BLINK);
    refreshMap();	//first show map
 }
 
