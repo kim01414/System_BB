@@ -59,6 +59,14 @@ void test1(){
 		}
 	}
 
+	for(i=4; i<5; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK3;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
 	/*for(i=5; i<6; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
 			map[i][j] = BRICK2;
@@ -68,13 +76,13 @@ void test1(){
 	}*/
 
 
-	for(i=12; i<13; i+=2) {
+	/*for(i=12; i<13; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
 			map[i][j] = BRICKE;
 			brick_left += 2;
 			if(j %4 == 1) j++;
 		}
-	}
+	}*/
 
 
 	for(i=6; i<7; i+=2) {
@@ -115,7 +123,7 @@ void refreshMap(){ /////////// █ ░ ▒ ▓
 				waddch(gamebox,ACS_CKBOARD);
 			}
 			else if(map[h][w]==BALL){
-				waddch(gamebox,'O'|A_BOLD);
+				waddch(gamebox,'o'|A_BOLD);
 			}
 			else if(map[h][w]==BRICK3){
 				waddch(gamebox,ACS_CKBOARD|COLOR_PAIR(3));
@@ -195,9 +203,11 @@ void setBallPos(){
 		case WALL:	//when next pos is wall, bounce
 			setBallDel(0);
 			break;
+
 		case BOARD:		//when next pos is board, bounce
 			setBallDel(0);
 			break;
+
 		case BRICK3:		//when next pos is brick, break the brick and bounce
 		case BRICK2:
 		case BRICK1:
@@ -207,6 +217,7 @@ void setBallPos(){
 			test_score+=100;
 			if(test_score>=test_high) test_high=test_score;
 			break;
+
 		case WALL_BOTTOM:	//when next pos is bottom, game end
 			highscore(1);
 			test_time=-1;
@@ -218,6 +229,7 @@ void setBallPos(){
 
 	//make prev ball to empty
 	map[current_ballX][current_ballY]=EMPTY;
+
 	//set new position
 	current_ballX+=dx;
 	current_ballY+=dy;
@@ -233,7 +245,6 @@ void setBallDel(int what){
 	int temp_x = current_ballX + dx;
 	int temp_y = current_ballY + dy;
 
-
 	if(map[temp_x][temp_y] != EMPTY){
 		if(map[temp_x][temp_y] == BOARD){	// meet board
 			// change delta despite board's position
@@ -241,45 +252,70 @@ void setBallDel(int what){
 				dx *= -1;
 				if(dy == 0)
 					dy = -1;
-			}else if(temp_y > current_board+2 && temp_y <= current_board+4){
+			}
+      
+      else if(temp_y > current_board+2 && temp_y <= current_board+4){
 				dx *= -1;
 
 				if(dy == 1){
 					map[current_ballX][current_ballY] = EMPTY;
-					current_ballY += 1;		
-					
+					current_ballY += 1;
 				}	
 				else if(dy == -1){
 					map[current_ballX][current_ballY] = EMPTY;
 					current_ballY -= 1;
-					
 				}
-				
 				dy = 0;
-
-			}else if(temp_y > current_board+4 && temp_y <= current_board+7){
+			}
+      
+			else if(temp_y > current_board+4 && temp_y <= current_board+7) {
 				dx *= -1;
 
 				if(dy == 0)
 					dy = 1;
-
 			}
 
-		} else if(map[temp_x][temp_y] == WALL || map[temp_x][temp_y] == WALL_BOTTOM){
-			if(temp_y == 0 || temp_y == MAP_WIDTH-1){	// meet right, left wall
-				dy *= -1;
+		} // if(map[temp_x][temp_y] == BRARD). END
+
+			else if(map[temp_x][temp_y] == WALL || map[temp_x][temp_y] == WALL_BOTTOM) {
+				if(temp_y == 0 || temp_y == MAP_WIDTH-1) {	// meet right, left wall
+					dy *= -1;
 				if(map[current_ballX + dx][current_ballY + dy] == BOARD)
 					dx *= -1;
 
-			}else if(temp_x == 0 || temp_y == MAP_HEIGHT-1){// meet up, down wall
+			}
+
+			else if(temp_x == 0 || temp_y == MAP_HEIGHT-1) {	// meet up, down wall
 				dx *= -1;
 				if(map[current_ballX + dx][current_ballY + dy] == WALL)
 					dy *= -1;
 			}
 
-		}else{									// meet bricks
-			deleteBrick(what, dx, dy, FALSE);
-			dx *= -1;
+		} //else if(map[temp_x][temp_y] == WALL || ...). END
+
+		else {
+			if(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy])
+			{
+				deleteBrick(what, dx, dy, FALSE);
+				dx *= -1;
+				dy *= -1;
+			}
+			/*	while(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy])
+				{
+					deleteBrick(what, dx, dy, FALSE);
+					dx *= -1;
+					if(dy == 1)
+						current_ballY++;
+					if(dy == -1)
+						current_ballY--;
+					deleteBrick(what, dx, dy, FALSE);
+				} */
+
+				else
+				{
+					deleteBrick(what, dx, dy, FALSE);
+					dx *= -1;
+				}
 		}
 
 	}
@@ -432,6 +468,7 @@ void mainmenu()
 
 		if(sel==4) wattroff(welcome,A_DIM);
 			mvwaddstr(welcome,17,37,"Exit");
+
 		if(sel==4) wattron(welcome,A_DIM);
 
 		wrefresh(welcome);
