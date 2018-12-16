@@ -1,4 +1,12 @@
+#include <stdio.h>
 #include <stdlib.h>
+#include <ncurses.h>
+#include <signal.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <locale.h>
+
 #define MAP_WIDTH 62	//except 2 wall lines,  make centre map to  60*20
 #define MAP_HEIGHT 22
 #define BOARD_HEIGHT MAP_HEIGHT-3	//board moves at map[19][x]
@@ -45,10 +53,13 @@ void initialize();
 void popup(char*,int,int);
 
 //UI
+void title();
 void *stopwatch();
 void gameover(int,int);
 void highscore(int);
 void BOX(WINDOW*, int, int,int);
+void mainmenu();
+void about();
 
 //MAP design
 void test1();
