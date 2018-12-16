@@ -237,19 +237,29 @@ void setBallDel(int what){
 	if(map[temp_x][temp_y] != EMPTY){
 		if(map[temp_x][temp_y] == BOARD){	// meet board
 			// change delta despite board's position
-
 			if(temp_y <= current_board+2 ){
 				dx *= -1;
 				if(dy == 0)
 					dy = -1;
-
-
 			}else if(temp_y > current_board+2 && temp_y <= current_board+4){
 				dx *= -1;
+
+				if(dy == 1){
+					map[current_ballX][current_ballY] = EMPTY;
+					current_ballY += 1;		
+					
+				}	
+				else if(dy == -1){
+					map[current_ballX][current_ballY] = EMPTY;
+					current_ballY -= 1;
+					
+				}
+				
 				dy = 0;
 
 			}else if(temp_y > current_board+4 && temp_y <= current_board+7){
 				dx *= -1;
+
 				if(dy == 0)
 					dy = 1;
 
