@@ -1,7 +1,8 @@
 #include "BB.h"
 
-int map[MAP_HEIGHT][MAP_WIDTH];
-int current_board;
+
+int map[MAP_HEIGHT][MAP_WIDTH];	//map size 22*62
+int current_board;		//current board y position, x = 19
 int current_ballX, current_ballY;
 int dx=-1, dy=-1;		//ball delta
 int brick_left=0;
@@ -10,12 +11,15 @@ pthread_t ballThread, TimeThread;
 
 WINDOW *gamebox, *scorebox, *welcome;
 
+
 int main(){
 	int h, w; 		//height and width variables for loop
 	int q=1, c=1;	//don't care variables..? not quite importent things
 	char ch;
+	
 	//to make ball thread
 	int thr_id, status;
+	
 	initscr();
 	start_color();
 	init_color(COLOR_MAGENTA,105,105,105);
@@ -23,10 +27,12 @@ int main(){
 	curs_set(0);	//make user can't see the cursor
 	noecho();
 	refresh();
+	
+	// start ball thread, time thread
 	pthread_create(&ballThread, NULL, ballThreadFunc, (void*)&c);
 	pthread_create(&TimeThread, NULL, stopwatch, NULL);
+	
 	while(1){
-		
 		mainmenu();
 		/*	Initialize	*/
 		highscore(0);
@@ -358,6 +364,7 @@ void deleteBrick(int what, int x, int y)
 
 }
 
+
 void BOX(WINDOW* win, int X,int Y, int color){
 	box(win,ACS_VLINE|color,ACS_HLINE|color);
 	mvwaddch(win, 0,0       ,ACS_ULCORNER|color);
@@ -367,20 +374,23 @@ void BOX(WINDOW* win, int X,int Y, int color){
 }
 
 
-void mainmenu()
+void mainmenu() //show main menu. the first screen.
 {
-	int sel=1,c;
+	int sel=1,c;	//sel to select menu item.
+	
 	welcome = newwin(22,80,1,0);
 	
 	keypad(welcome,TRUE);
 	wattron(welcome,A_BOLD);
 	wclear(welcome);
+	
 	while(1)
 	{
 		wattroff(welcome,A_DIM);
 		title();
 		box(welcome,ACS_VLINE,ACS_HLINE);
 		wattron(welcome,A_DIM);
+		
 		if(sel==1) wattroff(welcome,A_DIM);
 			mvwaddstr(welcome,14,34,"Start Game");
 		if(sel==1) wattron(welcome,A_DIM);
@@ -399,7 +409,7 @@ void mainmenu()
 
 		wrefresh(welcome);
 		c=wgetch(welcome);
-		if(c==KEY_UP){
+		if(c==KEY_UP){		//move curser to next selected item
 			sel--;
 			if(sel<1) sel=4;
 		}
@@ -407,20 +417,20 @@ void mainmenu()
 			sel++;
 			if(sel>4) sel=1;
 		}
-		else if(c=='\n'){
-			if(sel==4){
+		else if(c=='\n'){	//when user choose
+			if(sel==4){	//exit
 				clear();
 				endwin();
 				exit(0);
-			}
+			}		//about us
 			else if(sel==3) {
 				about();
 				sel=1;
-			}
+			}		//settings
 			else if(sel==2){
 				settings(NULL);
 				sel=1;
-			}
+			}		//start game
 			else if(sel==1) {
 				clear();
 				refresh();
@@ -428,9 +438,9 @@ void mainmenu()
 				return;
 			}
 		}
-	}	
-	
-}
+	}//end while	
+}//end mainmenu
+
 
 void initialize() //80 x 26
 {
