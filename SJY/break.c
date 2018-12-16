@@ -62,7 +62,7 @@ void test1(){
 	}*/
 
 
-	for(i=9; i<10; i+=2) {
+	for(i=12; i<13; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
 			map[i][j] = BRICKE;
 			brick_left += 2;
@@ -71,7 +71,7 @@ void test1(){
 	}
 
 
-	for(i=5; i<6; i+=2) {
+	for(i=6; i<7; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
 			map[i][j] = BRICKU;
 			brick_left += 2;
@@ -80,7 +80,7 @@ void test1(){
 	}
 
 
-	for(i=7; i<8; i+=2) {
+	for(i=9; i<10; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
 			map[i][j] = BRICK1;
 			brick_left += 2;
