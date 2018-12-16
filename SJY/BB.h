@@ -23,6 +23,10 @@
 #define BALL 5
 #define EMPTY 0
 
+///////////SPEED/////////////
+#define SLOW 200000
+#define NORMAL 100000
+#define FAST 50000
 // global values
 /*int map[MAP_HEIGHT][MAP_WIDTH];
 int current_board;
@@ -60,6 +64,7 @@ void highscore(int);
 void BOX(WINDOW*, int, int,int);
 void mainmenu();
 void about();
+void settings(int*);
 
 //MAP design
 void test1();
