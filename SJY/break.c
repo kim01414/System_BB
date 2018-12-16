@@ -304,8 +304,10 @@ void deleteBrick(int what, int x, int y, int boomFlag)
 		xpos = x;
 		ypos = y;
 		temp = ypos;
-		fprintf(fp, "    Brick explosion!, brick: %d, brickposition: %d, %d\n", what, xpos, ypos);
-//		what = map[x][y];
+		what = map[x][y];
+		if(what)
+			fprintf(fp, "    Brick explosion!, brick: %d, brickposition: %d, %d\n", what, xpos, ypos);
+
 	}
 
 	// 1. normal bricks control.
@@ -328,7 +330,7 @@ void deleteBrick(int what, int x, int y, int boomFlag)
 	// 2. explosive bricks control.
 	/* left hit, -1 left bricks. right hit, -1 right bricks.
 	   top and bottom hit, remove top bottom bricks.
-	   using recursive call.	             	       */
+	   using recursive call. and flag.       	       */
 	else if(what == BRICKE) {
 		map[xpos][ypos] = 0;
 
@@ -347,18 +349,19 @@ void deleteBrick(int what, int x, int y, int boomFlag)
 			deleteBrick(map[xpos][ypos-2] ,xpos, ypos-2, TRUE);
 		} // left
 
-		else if(map[xpos][ypos+2] != EMPTY || map[xpos][ypos+2] != WALL) {
+		if(map[xpos][ypos+2] != EMPTY || map[xpos][ypos+2] != WALL) {
 			deleteBrick(map[xpos][ypos+2] ,xpos, ypos+2, TRUE);
 		} // right
 
-		else if (map[xpos+2][ypos] != EMPTY || map[xpos+2][ypos] != WALL) {
-			deleteBrick(map[xpos+2][ypos], xpos+2, ypos, TRUE);
-			deleteBrick(map[xpos-2][ypos], xpos-2, ypos, TRUE);
+		//top and bottom is broke always.
+		if (map[xpos+3][ypos] != EMPTY || map[xpos+3][ypos] != WALL) {
+			deleteBrick(map[xpos+3][ypos], xpos+3, ypos, TRUE);
+			deleteBrick(map[xpos-3][ypos], xpos-3, ypos, TRUE);
 		} // top and bottom.
 
-		else if (map[xpos-2][ypos] != EMPTY || map[xpos-2][ypos] != WALL) {
-			deleteBrick(map[xpos+2][ypos], xpos+2, ypos, TRUE);
-			deleteBrick(map[xpos-2][ypos], xpos-2, ypos, TRUE);
+		if (map[xpos-3][ypos] != EMPTY || map[xpos-3][ypos] != WALL) {
+			deleteBrick(map[xpos+3][ypos], xpos+3, ypos, TRUE);
+			deleteBrick(map[xpos-3][ypos], xpos-3, ypos, TRUE);
 		} // top and bottom.
 
 	} // left brick remove.
