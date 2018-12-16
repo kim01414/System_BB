@@ -51,52 +51,42 @@ int main(){
 void test1(){
 	int i, j;
 
-	for(i=3; i<4; i+=2) {
+/*	for(i=3; i<4; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
 			map[i][j] = BRICK3;
 			brick_left += 2;
 			if(j %4 == 1) j++;
 		}
-	}
+	} */
 
 	for(i=4; i<5; i+=2) {
-		for(j = 7; j < MAP_WIDTH-7; j++) {
-			map[i][j] = BRICK3;
-			brick_left += 2;
-			if(j %4 == 1) j++;
-		}
-	}
-
-	/*for(i=5; i<6; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
 			map[i][j] = BRICK2;
 			brick_left += 2;
 			if(j %4 == 1) j++;
 		}
-	}*/
-
-
-	/*for(i=12; i<13; i+=2) {
-		for(j = 7; j < MAP_WIDTH-7; j++) {
-			map[i][j] = BRICKE;
-			brick_left += 2;
-			if(j %4 == 1) j++;
-		}
-	}*/
-
+	}
 
 	for(i=6; i<7; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
-			map[i][j] = BRICKU;
+			map[i][j] = BRICK2;
+			brick_left += 2;
+			if(j %4 == 1) j++;
+		}
+	}
+
+	for(i=8; i<9; i+=2) {
+		for(j = 7; j < MAP_WIDTH-7; j++) {
+			map[i][j] = BRICK2;
 			brick_left += 2;
 			if(j %4 == 1) j++;
 		}
 	}
 
 
-	for(i=9; i<10; i+=2) {
+	for(i=10; i<11; i+=2) {
 		for(j = 7; j < MAP_WIDTH-7; j++) {
-			map[i][j] = BRICK1;
+			map[i][j] = BRICK2;
 			brick_left += 2;
 			if(j %4 == 1) j++;
 		}
@@ -253,21 +243,21 @@ void setBallDel(int what){
 				if(dy == 0)
 					dy = -1;
 			}
-      
+
       else if(temp_y > current_board+2 && temp_y <= current_board+4){
 				dx *= -1;
 
 				if(dy == 1){
 					map[current_ballX][current_ballY] = EMPTY;
 					current_ballY += 1;
-				}	
+				}
 				else if(dy == -1){
 					map[current_ballX][current_ballY] = EMPTY;
 					current_ballY -= 1;
 				}
 				dy = 0;
 			}
-      
+
 			else if(temp_y > current_board+4 && temp_y <= current_board+7) {
 				dx *= -1;
 
@@ -294,28 +284,34 @@ void setBallDel(int what){
 		} //else if(map[temp_x][temp_y] == WALL || ...). END
 
 		else {
-			if(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy])
-			{
+			if(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy]) {
+
 				deleteBrick(what, dx, dy, FALSE);
 				dx *= -1;
 				dy *= -1;
-			}
-			/*	while(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy])
+
+
+/*				while(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy])
 				{
+					map[current_ballX][current_ballY] = EMPTY;
 					deleteBrick(what, dx, dy, FALSE);
 					dx *= -1;
+
 					if(dy == 1)
 						current_ballY++;
 					if(dy == -1)
 						current_ballY--;
-					deleteBrick(what, dx, dy, FALSE);
+
+					refreshMap();
 				} */
 
-				else
-				{
-					deleteBrick(what, dx, dy, FALSE);
-					dx *= -1;
-				}
+			}
+
+			else
+			{
+				deleteBrick(what, dx, dy, FALSE);
+				dx *= -1;
+			}
 		}
 
 	}
