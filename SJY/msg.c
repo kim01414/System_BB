@@ -115,7 +115,7 @@ void about()
 	mvwaddch( msgbox,8,38,ACS_LRCORNER|COLOR_PAIR(7) );
 
     wattron(msgbox,A_BOLD);
-    mvwprintw(msgbox,0,14,"About us");
+    mvwprintw(msgbox,0,15,"About us");
     mvwprintw(msgbox,3,2,"Engine: ");
     mvwprintw(msgbox,4,2,"    UI: ");
 	
