@@ -29,7 +29,6 @@
 #define SLOW 200000
 #define NORMAL 100000
 #define FAST 50000
-
 // board functions
 void setBoard(int c);
 void moveBoard(int d);
@@ -59,8 +58,10 @@ void highscore(int,int);
 void BOX(WINDOW*, int, int,int);
 void mainmenu();
 void about();
+
 void Select();
 void help();
+
 
 //MAP design
 void test1();

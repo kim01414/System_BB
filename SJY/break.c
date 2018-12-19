@@ -42,6 +42,7 @@ int main(){
 		test_time=0;
 		while(test_time!=-1){
 			fprintf(fp, "ballX: %d, ballY: %d, deltaX: %d deltaY: %d\n", current_ballX, current_ballY, dx, dy);
+
 			c=wgetch(stdscr);	
 			if(c=='\n' && lock!=1) hold(); //Game pause
 			else{
@@ -60,11 +61,13 @@ void refreshMap(){ /////////// █ ░ ▒ ▓
 	mvwprintw(scorebox,2,6,"%3d",maplevel);
 	mvwprintw(scorebox,5,3,"%8d",test_high);
 	mvwprintw(scorebox,8,3,"%8d",test_score);
+
 	mvwprintw(scorebox,14,3,"%8d",brick_left);
 	mvwprintw(scorebox,18,3,"(%2d, %2d)",current_ballY,current_ballX);
 	if(test_time!=-1)mvwprintw(scorebox,11,8,"%3d",test_time);
 	else mvwprintw(scorebox,11,8,"  0");
 	pthread_mutex_lock(&lock1);
+
 	for(h=0; h<MAP_HEIGHT; h++){
 		for(w=0; w<MAP_WIDTH; w++){
 			wmove(gamebox,h,w);
@@ -261,21 +264,6 @@ void setBallDel(int what){
 				dx *= -1;
 				dy *= -1;
 
-
-/*			while(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy])
-			{
-					map[current_ballX][current_ballY] = EMPTY;
-					deleteBrick(what, dx, dy, FALSE);
-					dx *= -1;
-
-					if(dy == 1)
-						current_ballY++;
-					if(dy == -1)
-						current_ballY--;
-
-					refreshMap();
-			} */
-
 			}
 
 			else
@@ -306,6 +294,23 @@ void deleteBrick(int what, int x, int y, int boomFlag)
 	int xpos = current_ballX+x, ypos = current_ballY+y;
 	int temp = ypos;
 	pthread_mutex_trylock(&lock1);
+	if(!boomFlag) {
+		xpos = current_ballX+x;
+		ypos = current_ballY+y;
+		temp = ypos;
+		fprintf(fp, "    Brick hit!, brick: %d, brickposition: %d, %d\n", what, xpos, ypos);
+	}
+
+	if(boomFlag) { // block position.
+		xpos = x;
+		ypos = y;
+		temp = ypos;
+		what = map[x][y];
+		if(what)
+			fprintf(fp, "    Brick explosion!, brick: %d, brickposition: %d, %d\n", what, xpos, ypos);
+
+	}
+
 	if(!boomFlag) {
 		xpos = current_ballX+x;
 		ypos = current_ballY+y;
@@ -439,6 +444,7 @@ void mainmenu()
 
 		if(sel==4) wattroff(welcome,A_DIM);
 			mvwaddstr(welcome,17,37,"Exit");
+
 		if(sel==4) wattron(welcome,A_DIM);
 
 		wrefresh(welcome);
@@ -525,6 +531,7 @@ int initialize() //80 x 26
 	mvwprintw(scorebox,4,4,"HIGH SCORE");
 	mvwprintw(scorebox,7,6,"SCORE");
 	mvwprintw(scorebox,10,7,"TIME");
+
 	mvwprintw(scorebox,13,3,"BRICK COUNT");
 
 	wrefresh(scorebox);
@@ -535,7 +542,6 @@ int initialize() //80 x 26
 	case 2: mapfp = fopen("map2.txt", "r"); break;
 	case 3:	mapfp = fopen("map3.txt", "r"); break;
 	case 4:	mapfp = fopen("map4.txt", "r"); break;
-	case 5:	mapfp = fopen("map5.txt", "r"); break;
 	}
 
 	if(!mapfp){
