@@ -402,9 +402,6 @@ void deleteBrick(int what, int x, int y, int boomFlag)
 		while(map[xpos][++temp]!=EMPTY) {
 			map[xpos][temp] = 1;
 		} // right
-
-		brick_left--;
-                // bricks counter.
 	}
 	pthread_mutex_unlock(&lock1);
 }
