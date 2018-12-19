@@ -33,6 +33,8 @@ int main(){
 	pthread_create(&TimeThread, NULL, stopwatch, NULL);
 
 	fp = fopen("log.txt", "w");
+	
+
 
 	while(maplevel < 4 && maplevel > 0){
 		mainmenu();
@@ -218,7 +220,7 @@ void setBallDel(int what){
 					dy = -1;
 			}
 
-      else if(temp_y > current_board+2 && temp_y <= current_board+4){
+      		else if(temp_y > current_board+2 && temp_y <= current_board+4){
 				dx *= -1;
 
 				if(dy == 1){
@@ -241,21 +243,25 @@ void setBallDel(int what){
 
 		} // if(map[temp_x][temp_y] == BRARD). END
 
-			else if(map[temp_x][temp_y] == WALL || map[temp_x][temp_y] == WALL_BOTTOM) {
-				if(temp_y == 0 || temp_y == MAP_WIDTH-1) {	// meet right, left wall
-					dy *= -1;
+		else if(map[temp_x][temp_y] == WALL || map[temp_x][temp_y] == WALL_BOTTOM) {
+			if(temp_y == 0 || temp_y == MAP_WIDTH-1) {	// meet right, left wall
+				dy *= -1;
 				if(map[current_ballX + dx][current_ballY + dy] == BOARD)
+					dx *= -1;
+				else if(map[current_ballX + dx][current_ballY + dy] == WALL)
 					dx *= -1;
 
 			}
 
-			else if(temp_x == 0 || temp_y == MAP_HEIGHT-1) {	// meet up, down wall
+			else if(temp_x == 0 || temp_x == MAP_HEIGHT-1) {	// meet up, down wall
 				dx *= -1;
 				if(map[current_ballX + dx][current_ballY + dy] == WALL)
 					dy *= -1;
+				
 			}
 
 		} //else if(map[temp_x][temp_y] == WALL || ...). END
+
 
 		else {
 			if(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy]) {
@@ -569,6 +575,9 @@ int initialize() //80 x 26
 
 	current_board = MAP_WIDTH/2-4;	//set board at centre
 	current_ballX = BOARD_HEIGHT-1;	//set ballX above the board
+
+	dx = -1;	// ball delta initialize
+	dy = -1;
 
 	for(int i = 0; i < 8; i++)
 		map[BOARD_HEIGHT][current_board+i] = BOARD;
