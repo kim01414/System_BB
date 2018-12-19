@@ -5,7 +5,9 @@ extern WINDOW* welcome;
 void popup(char* msg, int space,int flag)
 {
     int settings = A_NORMAL;
+	extern int lock;
     WINDOW *msgbox;
+	lock=1;
     settings |= flag;
     msgbox = newwin(9,39,8,12);
     BOX(msgbox,39,9,COLOR_PAIR(1));
@@ -13,114 +15,162 @@ void popup(char* msg, int space,int flag)
     mvwprintw(msgbox,4,8+space,msg);
     wrefresh(msgbox);
     getch();
-    wrefresh(msgbox);
     delwin(msgbox);
+	lock=0;
 }
 
-void gameover(int score,int hscore)
-{
-    WINDOW *msgbox;
+int hold(){
+	WINDOW *msgbox;
+	int temp;
+	extern int test_time;
     msgbox = newwin(9,39,8,12);
     BOX(msgbox,39,9,COLOR_PAIR(1));
+	test_time=-1;
     wattron(msgbox,A_BOLD);
-    mvwprintw(msgbox,4,14,"GAME OVER");
-    wattroff(msgbox,A_BOLD);
+	mvwprintw(msgbox,4,14,"GAME PAUSED");
     wrefresh(msgbox);
     getch();
+	test_time=temp;
     delwin(msgbox);
 }
 
-void settings(int* option1 ){
-	int spd,opt1=1,opt2=1,i,sel=1;
-	char *SPEED[3] = {"  SLOW  ", " NORMAL ", "  FAST  "};
-	char *OPT1[3]  = {"  VAL1  ", "  VAL2  ", "  VAL3  "};
-	char *OPT2[3]  = {"  VAL1  ", "  VAL2  ", "  VAL3  "};
-	WINDOW *msgbox;
+void Select(){
+	extern int maplevel;
+	int i,sel=1,mapsel=0, spd;
+	char* map[4] =   {"        MAP01        ","        MAP02        ","        MAP03        ","        MAP04        "};
+	char *SPEED[3] = {"        SLOW         ","        NORMAL       ","        FAST         "};
+	WINDOW *msgbox = newwin(9,39,11,20);
 	if(speed==SLOW) spd=0;
 	else if(speed==NORMAL) spd=1;
 	else if(speed==FAST) spd=2;
-    msgbox = newwin(9,39,10,20);
-    box(msgbox,ACS_VLINE,ACS_HLINE);
+	box(msgbox,ACS_VLINE,ACS_HLINE);
+	init_pair(1,COLOR_BLUE,COLOR_BLACK);
 	for(i=1 ; i<8 ;i++) mvwaddch(msgbox,i,38,ACS_VLINE|COLOR_PAIR(7));
 	for(i=1 ; i<39 ;i++) mvwaddch(msgbox,8,i,ACS_HLINE|COLOR_PAIR(7));
 	mvwaddch( msgbox,8,38,ACS_LRCORNER|COLOR_PAIR(7) );
 	wattron(msgbox,A_BOLD);
-    mvwprintw(msgbox,0,16,"Settings");
-	for(i=3;i<6;i++){
-		mvwaddch( msgbox,i,17,ACS_LARROW);//|A_STANDOUT);
-		mvwaddch( msgbox,i,28,ACS_RARROW);//|A_STANDOUT);
-	}
-	wattroff(msgbox,A_BOLD);
-	mvwprintw(msgbox,3,5,"SPEED  ");
-	mvwprintw(msgbox,4,5,"Option1");
-	mvwprintw(msgbox,5,5,"Option2");
+	
+	mvwaddch( msgbox,3,10,ACS_LARROW);//|A_STANDOUT);
+	mvwaddch( msgbox,3,34,ACS_RARROW);//|A_STANDOUT);
+	mvwaddch( msgbox,5,10,ACS_LARROW);//|A_STANDOUT);
+	mvwaddch( msgbox,5,34,ACS_RARROW);//|A_STANDOUT);
+	wattron(msgbox,COLOR_PAIR(1));
+	mvwprintw(msgbox,0,14,"Select MAP");
+	mvwprintw(msgbox,3,3,"MAP ");
+	mvwprintw(msgbox,5,3,"SPEED ");
+	wattroff(msgbox,A_BOLD|COLOR_PAIR(1));
 	keypad(msgbox,TRUE);
 	while(1){
 		if(sel==1) wattron(msgbox,A_STANDOUT|A_BOLD);
-			mvwprintw(msgbox,3,19,"%s",SPEED[spd]);
+			mvwprintw(msgbox,3,12,"%s",map[mapsel]);
 		if(sel==1) wattroff(msgbox,A_STANDOUT|A_BOLD);
 
 		if(sel==2) wattron(msgbox,A_STANDOUT|A_BOLD);
-			mvwprintw(msgbox,4,19,"%s",OPT1[opt1]);
+			mvwprintw(msgbox,5,12,"%s",SPEED[spd]);
 		if(sel==2) wattroff(msgbox,A_STANDOUT|A_BOLD);
 
 		if(sel==3) wattron(msgbox,A_STANDOUT|A_BOLD);
-			mvwprintw(msgbox,5,19,"%s",OPT2[opt2]);
+			mvwprintw(msgbox,7,8," Start ");
 		if(sel==3) wattroff(msgbox,A_STANDOUT|A_BOLD);
 
 		if(sel==4) wattron(msgbox,A_STANDOUT|A_BOLD);
-			mvwprintw(msgbox,7,17," OK ");
+			mvwprintw(msgbox,7,23," Cancel ");
 		if(sel==4) wattroff(msgbox,A_STANDOUT|A_BOLD);
+		
 		wrefresh(msgbox);
 
 		i = wgetch(msgbox);
 		if(i==KEY_UP){
-			sel--;
-			if(sel<1) sel=4;
+			if(sel>2) sel=2;
+			else sel=1;
 		}
-		else if(i==KEY_DOWN){
+		else if(i==KEY_DOWN && sel<4){
 			sel++;
-			if(sel>4) sel=1;
 		}
 		else if(i==KEY_LEFT){
-			if(sel==1 && spd>0 ) spd--;
-			else if(sel==2 && opt1>0 ) opt1--;
-			else if(sel==3 && opt2>0 ) opt2--;
+			if (sel==1 && mapsel>0) mapsel--; 
+			else if(sel==2 && spd>0) spd--;
+			else if(sel==4) sel=3;
 		}
 		else if(i==KEY_RIGHT){
-			if(sel==1 && spd<2 ) spd++;
-			else if(sel==2 && opt1<2 ) opt1++;
-			else if(sel==3 && opt2<2 ) opt2++;
+			if(sel==1 && mapsel<3 ) mapsel++;
+			else if(sel==2 && spd<2) spd++;
+			else if(sel==3) sel=4;
 		}
-		else if(i=='\n' && sel==4){
+		else if(i=='\n'){
+			if(sel==4) maplevel=-1;
+			else maplevel=mapsel+1;
 			break;
 		}
-	}
-	
+	}	
 	if(spd==0) speed = SLOW;
 	else if(spd==1) speed = NORMAL;
 	else if(spd==2) speed = FAST;
+	delwin(msgbox);
+}
 
+void help()
+{
+    int i,j;
+    WINDOW* msgbox;
+    msgbox = newwin(14,39,8,20);
+	init_pair(1,COLOR_BLUE,COLOR_BLACK); //Fonts and Brick1
+	init_pair(2,COLOR_GREEN,COLOR_BLACK); //Brick2
+	init_pair(3,COLOR_CYAN,COLOR_BLACK); //Brick3
+	init_pair(4,COLOR_RED,COLOR_BLACK); //Explosive
+	init_pair(5,COLOR_WHITE,COLOR_BLACK); //Invisible
+
+	box(msgbox,ACS_VLINE,ACS_HLINE);
+	for(i=1 ; i<14 ;i++) mvwaddch(msgbox,i,38,ACS_VLINE|COLOR_PAIR(7));
+	for(i=1 ; i<39 ;i++) mvwaddch(msgbox,13,i,ACS_HLINE|COLOR_PAIR(7));
+	mvwaddch( msgbox,13,38,ACS_LRCORNER|COLOR_PAIR(7));
+	wattron(msgbox,A_BOLD|COLOR_PAIR(1));
+    mvwprintw(msgbox,0,17,"Help");
+    mvwprintw(msgbox,1,2,"-Controls-");
+	mvwprintw(msgbox,6,2,"-Bricks-");
+    wattroff(msgbox,COLOR_PAIR(1));
+	mvwprintw(msgbox,2,2,"Move left");
+    mvwprintw(msgbox,3,2,"Move right");
+	mvwprintw(msgbox,4,2,"Pause game");
+	mvwprintw(msgbox,7,2,"Normal Brick(+0)");
+	mvwprintw(msgbox,8,2,"Normal Brick(+1)");
+	mvwprintw(msgbox,9,2,"Normal Brick(+2)");
+    mvwprintw(msgbox,10,2,"Explosive Brick");
+	mvwprintw(msgbox,11,2,"Invisible Brick");
+	wattroff(msgbox,A_BOLD);
+	mvwprintw(msgbox,2,25,"Left Key");
+	mvwprintw(msgbox,3,25,"Right Key");
+	mvwprintw(msgbox,4,25,"Enter");
+
+	for(i=7; i<12 ;i++){
+		for(j=25 ; j<28 ;j++ ){
+			mvwaddch(msgbox,i,j+2,ACS_CKBOARD|COLOR_PAIR(i-6));
+		}
+	}
+    wrefresh(msgbox);
+    wgetch(msgbox);
     delwin(msgbox);
+    wclear(welcome);
 }
 
 void about()
 {
 	int i;
     WINDOW* msgbox;
-    msgbox = newwin(9,39,10,20);
+    msgbox = newwin(9,41,11,20);
 	box(msgbox,ACS_VLINE,ACS_HLINE);
-	for(i=1 ; i<8 ;i++) mvwaddch(msgbox,i,38,ACS_VLINE|COLOR_PAIR(7));
-	for(i=1 ; i<39 ;i++) mvwaddch(msgbox,8,i,ACS_HLINE|COLOR_PAIR(7));
-	mvwaddch( msgbox,8,38,ACS_LRCORNER|COLOR_PAIR(7) );
+	init_pair(1,COLOR_BLUE,COLOR_BLACK);
+	for(i=1 ; i<8 ;i++) mvwaddch(msgbox,i,40,ACS_VLINE|COLOR_PAIR(7));
+	for(i=1 ; i<41 ;i++) mvwaddch(msgbox,8,i,ACS_HLINE|COLOR_PAIR(7));
+	mvwaddch( msgbox,8,40,ACS_LRCORNER|COLOR_PAIR(7) );
 
-    wattron(msgbox,A_BOLD);
+    wattron(msgbox,A_BOLD|COLOR_PAIR(1));
     mvwprintw(msgbox,0,15,"About us");
     mvwprintw(msgbox,3,2,"Engine: ");
     mvwprintw(msgbox,4,2,"    UI: ");
 	
-    wattroff(msgbox,A_BOLD);
-	mvwprintw(msgbox,5,1,"https://github.com/kim01414/System_BB");
+    wattroff(msgbox,A_BOLD|COLOR_PAIR(1));
+	mvwprintw(msgbox,5,2,"https://github.com/kim01414/System_BB");
     mvwprintw(msgbox,3,11,"SJY / HJS / YTH");
     mvwprintw(msgbox,4,11,"KYH");
     wrefresh(msgbox);
@@ -270,17 +320,19 @@ void title()
 	mvwaddch(welcome,y+4,x+50,ACS_CKBOARD);
 	mvwaddch(welcome,y+4,x+52,ACS_CKBOARD);
 	mvwaddstr(welcome,y+5,x+46,"Ver 0.1");
-	for(i=32 ; i<46 ; i++){
+	init_color(COLOR_MAGENTA,105,105,105);
+	init_pair(1,COLOR_MAGENTA,COLOR_BLACK);
+	for(i=31 ; i<47 ; i++){
 		mvwaddch(welcome,13,i,ACS_HLINE);
-		mvwaddch(welcome,18,i,ACS_HLINE|COLOR_PAIR(7));
+		mvwaddch(welcome,18,i,ACS_HLINE|COLOR_PAIR(1));
 	}
 	for(i=13 ; i<19; i++){
-		mvwaddch(welcome,i,32,ACS_VLINE);
-		mvwaddch(welcome,i,45,ACS_VLINE|COLOR_PAIR(7));
+		mvwaddch(welcome,i,31,ACS_VLINE);
+		mvwaddch(welcome,i,46,ACS_VLINE|COLOR_PAIR(1));
 	} 
-	mvwaddch(welcome,13,32,ACS_ULCORNER);
-	mvwaddch(welcome,18,32,ACS_LLCORNER);
-	mvwaddch(welcome,13,45,ACS_URCORNER|COLOR_PAIR(7));
-	mvwaddch(welcome,18,45,ACS_LRCORNER|COLOR_PAIR(7));
+	mvwaddch(welcome,13,31,ACS_ULCORNER);
+	mvwaddch(welcome,18,31,ACS_LLCORNER);
+	mvwaddch(welcome,13,46,ACS_URCORNER|COLOR_PAIR(1));
+	mvwaddch(welcome,18,46,ACS_LRCORNER|COLOR_PAIR(1));
     wrefresh(welcome);
 }

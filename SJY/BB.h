@@ -29,14 +29,6 @@
 #define SLOW 200000
 #define NORMAL 100000
 #define FAST 50000
-// global values
-/*int map[MAP_HEIGHT][MAP_WIDTH];
-int current_board;
-int current_ballX, current_ballY;
-int dx=-1, dy=-1;		//ball delta
-int brick_left=0;
-int test_stage=1, test_score=0, test_time=0, test_high;
-*/
 // board functions
 void setBoard(int c);
 void moveBoard(int d);
@@ -55,18 +47,21 @@ void deleteBrick(int what, int x, int y, int boomFlag);
 
 // map functions
 void refreshMap();
-void initialize();
+int initialize();
 void popup(char*,int,int);
 
 //UI
+int hold();
 void title();
 void *stopwatch();
-void gameover(int,int);
-void highscore(int);
+void highscore(int,int);
 void BOX(WINDOW*, int, int,int);
 void mainmenu();
 void about();
-void settings(int*);
+
+void Select();
+void help();
+
 
 //MAP design
 void test1();
