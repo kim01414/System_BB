@@ -118,7 +118,7 @@ void help()
 	init_pair(2,COLOR_GREEN,COLOR_BLACK); //Brick2
 	init_pair(3,COLOR_CYAN,COLOR_BLACK); //Brick3
 	init_pair(4,COLOR_RED,COLOR_BLACK); //Explosive
-	init_pair(5,COLOR_WHITE,COLOR_BLACK); //Invincible
+	init_pair(5,COLOR_WHITE,COLOR_BLACK); //Invisible
 
 	box(msgbox,ACS_VLINE,ACS_HLINE);
 	for(i=1 ; i<14 ;i++) mvwaddch(msgbox,i,38,ACS_VLINE|COLOR_PAIR(7));
@@ -136,7 +136,7 @@ void help()
 	mvwprintw(msgbox,8,2,"Normal Brick(+1)");
 	mvwprintw(msgbox,9,2,"Normal Brick(+2)");
     mvwprintw(msgbox,10,2,"Explosive Brick");
-	mvwprintw(msgbox,11,2,"Invinsible Brick");
+	mvwprintw(msgbox,11,2,"Invisible Brick");
 	wattroff(msgbox,A_BOLD);
 	mvwprintw(msgbox,2,25,"Left Key");
 	mvwprintw(msgbox,3,25,"Right Key");
