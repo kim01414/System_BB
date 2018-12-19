@@ -7,9 +7,11 @@ int dx=-1, dy=-1;		//ball delta
 int brick_left=0;
 int test_stage=1, test_score=0, test_time=-1, test_high, speed=SLOW;
 pthread_t ballThread, TimeThread;
-
+int maplevel = 1;
 WINDOW *gamebox, *scorebox, *welcome;
+
 FILE* fp;
+FILE* mapfp;
 
 int main(){
 	int h, w; 		//height and width variables for loop
@@ -30,7 +32,7 @@ int main(){
 
 	fp = fopen("log.txt", "w");
 
-	while(1){
+	while(maplevel < 4 && maplevel > 0){
 
 		mainmenu();
 		/*	Initialize	*/
@@ -46,63 +48,6 @@ int main(){
 	}
 	endwin();	//end curses
 	return 0;
-}
-
-void test1(){
-	int i, j;
-
-	for(i=3; i<4; i+=2) {
-		for(j = 7; j < MAP_WIDTH-7; j++) {
-			map[i][j] = BRICK3;
-			brick_left += 2;
-			if(j %4 == 1) j++;
-		}
-	}
-
-	for(i=4; i<5; i+=2) {
-		for(j = 7; j < MAP_WIDTH-7; j++) {
-			map[i][j] = BRICK3;
-			brick_left += 2;
-			if(j %4 == 1) j++;
-		}
-	}
-
-	/*for(i=5; i<6; i+=2) {
-		for(j = 7; j < MAP_WIDTH-7; j++) {
-			map[i][j] = BRICK2;
-			brick_left += 2;
-			if(j %4 == 1) j++;
-		}
-	}*/
-
-
-	/*for(i=12; i<13; i+=2) {
-		for(j = 7; j < MAP_WIDTH-7; j++) {
-			map[i][j] = BRICKE;
-			brick_left += 2;
-			if(j %4 == 1) j++;
-		}
-	}*/
-
-
-	for(i=6; i<7; i+=2) {
-		for(j = 7; j < MAP_WIDTH-7; j++) {
-			map[i][j] = BRICKU;
-			brick_left += 2;
-			if(j %4 == 1) j++;
-		}
-	}
-
-
-	for(i=9; i<10; i+=2) {
-		for(j = 7; j < MAP_WIDTH-7; j++) {
-			map[i][j] = BRICK1;
-			brick_left += 2;
-			if(j %4 == 1) j++;
-		}
-	}
-
-
 }
 
 void refreshMap(){ /////////// █ ░ ▒ ▓
@@ -253,21 +198,21 @@ void setBallDel(int what){
 				if(dy == 0)
 					dy = -1;
 			}
-      
+
       else if(temp_y > current_board+2 && temp_y <= current_board+4){
 				dx *= -1;
 
 				if(dy == 1){
 					map[current_ballX][current_ballY] = EMPTY;
 					current_ballY += 1;
-				}	
+				}
 				else if(dy == -1){
 					map[current_ballX][current_ballY] = EMPTY;
 					current_ballY -= 1;
 				}
 				dy = 0;
 			}
-      
+
 			else if(temp_y > current_board+4 && temp_y <= current_board+7) {
 				dx *= -1;
 
@@ -294,28 +239,34 @@ void setBallDel(int what){
 		} //else if(map[temp_x][temp_y] == WALL || ...). END
 
 		else {
-			if(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy])
-			{
+			if(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy]) {
+
 				deleteBrick(what, dx, dy, FALSE);
 				dx *= -1;
 				dy *= -1;
-			}
-			/*	while(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy])
-				{
+
+
+/*			while(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy])
+			{
+					map[current_ballX][current_ballY] = EMPTY;
 					deleteBrick(what, dx, dy, FALSE);
 					dx *= -1;
+
 					if(dy == 1)
 						current_ballY++;
 					if(dy == -1)
 						current_ballY--;
-					deleteBrick(what, dx, dy, FALSE);
-				} */
 
-				else
-				{
-					deleteBrick(what, dx, dy, FALSE);
-					dx *= -1;
-				}
+					refreshMap();
+			} */
+
+			}
+
+			else
+			{
+				deleteBrick(what, dx, dy, FALSE);
+				dx *= -1;
+			}
 		}
 
 	}
@@ -556,33 +507,29 @@ void initialize() //80 x 26
 	wrefresh(scorebox);
 	wrefresh(gamebox);
 
+	switch(maplevel) {
+	case 1: mapfp = fopen("map1.txt", "r"); break;
+	case 2: mapfp = fopen("map2.txt", "r"); break;
+	case 3:	mapfp = fopen("map3.txt", "r"); break;
+	}
+
+	for(int i = 0; i < MAP_HEIGHT; i++)
+		for(int j = 0; j < MAP_WIDTH; j++)
+			fscanf(mapfp, "%d ", &map[i][j]);
+
 	current_board = MAP_WIDTH/2-4;	//set board at centre
 	current_ballX = BOARD_HEIGHT-1;	//set ballX above the board
-	current_ballY = MAP_WIDTH/2;		//set ballY at centre
 
-	// initialise map using predefined numbers
-	for(h=0; h<MAP_HEIGHT; h++){
-		for(w=0; w<MAP_WIDTH; w++){
-			if( h==0 | w==0 | w==MAP_WIDTH-1 ){
-				map[h][w] = WALL;
-			}
-			else if (h==MAP_HEIGHT-1){
-				map[h][w] = WALL_BOTTOM;
-			}
-			else if(h==BOARD_HEIGHT && (w>=current_board&&w<=current_board+7)){
-				map[h][w] = BOARD;
-			}
-			else
-				map[h][w] = EMPTY;
-		}
-	}
+	for(int i = 0; i < 8; i++)
+		map[BOARD_HEIGHT][current_board+i] = BOARD;
+
+
+	current_ballY = MAP_WIDTH/2;	//set ballY at centre
 	map[current_ballX][current_ballY] = BALL;
-	test1();
-	//	makebrick();
 	refreshMap();
 
    //Press Key to Start popup
-   popup("Press Any Key to Start",0,A_BOLD|A_BLINK);
+   popup("Press Any Key to Start", 0, A_BOLD|A_BLINK);
    refreshMap();	//first show map
 }
 
