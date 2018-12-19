@@ -26,9 +26,9 @@
 #define EMPTY 0
 
 ///////////SPEED/////////////
-#define SLOW 200000
-#define NORMAL 100000
-#define FAST 50000
+#define SLOW 240000
+#define NORMAL 170000
+#define FAST 120000
 // board functions
 void setBoard(int c);
 void moveBoard(int d);
