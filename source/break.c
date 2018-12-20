@@ -34,9 +34,7 @@ int main(){
 
 	fp = fopen("log.txt", "w");
 	
-
-
-	while(maplevel < 4 && maplevel > 0){
+	while(1){
 		mainmenu();
 		/*	Initialize	*/
 		highscore(0,maplevel-1);
@@ -58,14 +56,14 @@ int main(){
 	return 0;
 }
 
-void refreshMap(){ /////////// █ ░ ▒ ▓
+void refreshMap(){
 	int h, w;
 	mvwprintw(scorebox,2,6,"%3d",maplevel);
 	mvwprintw(scorebox,5,3,"%8d",test_high);
 	mvwprintw(scorebox,8,3,"%8d",test_score);
 
 	mvwprintw(scorebox,14,3,"%8d",brick_left);
-	mvwprintw(scorebox,18,3,"(%2d, %2d)",current_ballY,current_ballX);
+	mvwprintw(scorebox,18,5,"(%2d, %2d)",current_ballY,current_ballX);
 	if(test_time!=-1)mvwprintw(scorebox,11,8,"%3d",test_time);
 	else mvwprintw(scorebox,11,8,"  0");
 	pthread_mutex_lock(&lock1);
@@ -166,10 +164,12 @@ void setBallPos(){
 	}
 	switch(temp){
 		case WALL:	//when next pos is wall, bounce
+			beep();
 			setBallDel(0);
 			break;
 
 		case BOARD:		//when next pos is board, bounce
+			beep();
 			setBallDel(0);
 			break;
 
@@ -178,6 +178,7 @@ void setBallPos(){
 		case BRICK1:
 		case BRICKE:
 		case BRICKU:
+			beep();
 			setBallDel(temp);
 			test_score+=100;
 			if(test_score>=test_high) test_high=test_score;
@@ -204,8 +205,6 @@ void setBallPos(){
 	refreshMap();
 	usleep(speed);
 }
-
-
 
 void setBallDel(int what){
 	int temp_x = current_ballX + dx;
@@ -241,7 +240,7 @@ void setBallDel(int what){
 					dy = 1;
 			}
 
-		} // if(map[temp_x][temp_y] == BRARD). END
+		}
 
 		else if(map[temp_x][temp_y] == WALL || map[temp_x][temp_y] == WALL_BOTTOM) {
 			if(temp_y == 0 || temp_y == MAP_WIDTH-1) {	// meet right, left wall
@@ -260,18 +259,14 @@ void setBallDel(int what){
 				
 			}
 
-		} //else if(map[temp_x][temp_y] == WALL || ...). END
-
-
+		}
 		else {
 			if(map[current_ballX+dx][current_ballY+dy] && map[current_ballX-dx][current_ballY+dy]) {
 
 				deleteBrick(what, dx, dy, FALSE);
 				dx *= -1;
 				dy *= -1;
-
 			}
-
 			else
 			{
 				deleteBrick(what, dx, dy, FALSE);
@@ -279,19 +274,6 @@ void setBallDel(int what){
 			}
 		}
 
-	}
-}
-
-
-void makebrick(){
-	int i, j;
-
-	for(i=4; i<BRICK_HEIGHT; i+=2){
-		for(j=7; j<MAP_WIDTH-7; j++){
-			map[i][j]=BRICK3;
-			brick_left+=2;
-			if(j%4==1) j++;
-		}
 	}
 }
 
@@ -317,34 +299,21 @@ void deleteBrick(int what, int x, int y, int boomFlag)
 
 	}
 
-	if(!boomFlag) {
-		xpos = current_ballX+x;
-		ypos = current_ballY+y;
-		temp = ypos;
-		fprintf(fp, "    Brick hit!, brick: %d, brickposition: %d, %d\n", what, xpos, ypos);
-	}
+	// 1. normal bricks & invisible bricks control.
+	else if(what == BRICK3 || what == BRICK2 || what == BRICK1 || what == BRICKU) {
+		if(what==BRICKU) map[xpos][ypos] = 1;
+		else map[xpos][ypos]--;
 
-	if(boomFlag) { // block position.
-		xpos = x;
-		ypos = y;
-		temp = ypos;
-		what = map[x][y];
-		if(what)
-			fprintf(fp, "    Brick explosion!, brick: %d, brickposition: %d, %d\n", what, xpos, ypos);
-
-	}
-
-	// 1. normal bricks control.
-	if(what == BRICK3 || what == BRICK2 || what == BRICK1) {
-		map[xpos][ypos]--;
 		while(map[xpos][--temp]!=EMPTY) {
-			map[xpos][temp]--;
+			if(what==BRICKU) map[xpos][temp]=1;
+			else map[xpos][temp]--;
 		} // for left bricks
 
 		temp = ypos;
 
 		while(map[xpos][++temp]!=EMPTY) {
-			map[xpos][temp]--;
+			if(what==BRICKU) map[xpos][temp]=1;
+			else map[xpos][temp]--;
 		} // for right bricks
 
 		if(what==BRICK1) brick_left--;
@@ -390,19 +359,6 @@ void deleteBrick(int what, int x, int y, int boomFlag)
 
 	} // left brick remove.
 
-
-	// 3. invisible bricks control.
-	else if(what == BRICKU) {
-		map[xpos][ypos] = 1;
-		while(map[xpos][--temp]!=EMPTY) {
-			map[xpos][temp] = 1;
-		} // make it level one block. left
-
-		temp = ypos;
-		while(map[xpos][++temp]!=EMPTY) {
-			map[xpos][temp] = 1;
-		} // right
-	}
 	pthread_mutex_unlock(&lock1);
 }
 
@@ -436,10 +392,6 @@ void mainmenu()
 		if(sel==2) wattroff(welcome,A_DIM);
 			mvwaddstr(welcome,15,37,"Help");
 		if(sel==2) wattron(welcome,A_DIM);
-
-		//if(sel==3) wattroff(welcome,A_DIM);
-		//	mvwaddstr(welcome,16,35,"Settings");
-		//if(sel==3) wattron(welcome,A_DIM);
 
 		if(sel==3) wattroff(welcome,A_DIM);
 			mvwaddstr(welcome,16,35,"About us");
@@ -517,18 +469,21 @@ int initialize() //80 x 26
 			mvwaddch(scorebox,6,0,ACS_LTEE);
 			mvwaddch(scorebox,9,0,ACS_LTEE);
 			mvwaddch(scorebox,12,0,ACS_LTEE);
+			mvwaddch(scorebox,15,0,ACS_LTEE);
 		}
 		else if(h==16){
 			mvwaddch(scorebox,3,16,ACS_RTEE);
 			mvwaddch(scorebox,6,16,ACS_RTEE);
 			mvwaddch(scorebox,9,16,ACS_RTEE);
 			mvwaddch(scorebox,12,16,ACS_RTEE);
+			mvwaddch(scorebox,15,16,ACS_RTEE);
 		}
 		else{
 			mvwaddch(scorebox,3,h,ACS_HLINE);
 			mvwaddch(scorebox,6,h,ACS_HLINE);
 			mvwaddch(scorebox,9,h,ACS_HLINE);
 			mvwaddch(scorebox,12,h,ACS_HLINE);
+			mvwaddch(scorebox,15,h,ACS_HLINE);
 		}
 	}
 	mvwprintw(scorebox,4,4,"HIGH SCORE");
@@ -574,7 +529,7 @@ int initialize() //80 x 26
 	current_ballX = BOARD_HEIGHT-1;	//set ballX above the board
 
 	dx = -1;	// ball delta initialize
-	dy = -1;
+	dy = 0;
 
 	for(int i = 0; i < 8; i++)
 		map[BOARD_HEIGHT][current_board+i] = BOARD;

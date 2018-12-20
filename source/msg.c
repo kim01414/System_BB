@@ -50,10 +50,10 @@ void Select(){
 	mvwaddch( msgbox,8,38,ACS_LRCORNER|COLOR_PAIR(7) );
 	wattron(msgbox,A_BOLD);
 	
-	mvwaddch( msgbox,3,10,ACS_LARROW);//|A_STANDOUT);
-	mvwaddch( msgbox,3,34,ACS_RARROW);//|A_STANDOUT);
-	mvwaddch( msgbox,5,10,ACS_LARROW);//|A_STANDOUT);
-	mvwaddch( msgbox,5,34,ACS_RARROW);//|A_STANDOUT);
+	mvwaddch( msgbox,3,10,ACS_LARROW);
+	mvwaddch( msgbox,3,34,ACS_RARROW);
+	mvwaddch( msgbox,5,10,ACS_LARROW);
+	mvwaddch( msgbox,5,34,ACS_RARROW);
 	wattron(msgbox,COLOR_PAIR(1));
 	mvwprintw(msgbox,0,14,"Select MAP");
 	mvwprintw(msgbox,3,3,"MAP ");

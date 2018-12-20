@@ -61,7 +61,3 @@ void about();
 
 void Select();
 void help();
-
-
-//MAP design
-void test1();
